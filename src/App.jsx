@@ -30,7 +30,7 @@ function PrivateRoute({ children }) {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/nfl-bracket">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/rooms" element={<PrivateRoute><RoomSelection /></PrivateRoute>} />

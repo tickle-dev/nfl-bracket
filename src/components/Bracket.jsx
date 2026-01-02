@@ -18,6 +18,7 @@ export default function Bracket() {
   const [loading, setLoading] = useState(true);
   const [roomCreator, setRoomCreator] = useState(null);
   const [gameResults, setGameResults] = useState({});
+  const [mobileTab, setMobileTab] = useState('afc'); // 'afc', 'nfc', 'superbowl'
 
   useEffect(() => {
     loadData();
@@ -303,7 +304,8 @@ export default function Bracket() {
       </header>
 
       <main className="flex-grow flex items-center justify-center p-2 lg:p-4 relative overflow-x-auto">
-        <div className="flex items-center justify-between w-full h-full max-w-[1900px] gap-2 lg:gap-4 xl:gap-6 scale-90 lg:scale-95 xl:scale-100">
+        {/* Desktop View - Hidden on Mobile */}
+        <div className="hidden lg:flex items-center justify-between w-full h-full max-w-[1900px] gap-2 lg:gap-4 xl:gap-6 scale-90 lg:scale-95 xl:scale-100">
           
           {/* AFC: Left Side */}
           <div className="flex items-center gap-2 lg:gap-4 xl:gap-6 flex-grow justify-start">
@@ -428,6 +430,163 @@ export default function Bracket() {
               <span className="text-center text-[8px] lg:text-[9px] font-black uppercase tracking-[0.5em] text-blue-500/60 mb-1">Conference</span>
               <MatchupCard matchup={nfcChampionship} onPickWinner={handlePickWinner} isLocked={isLocked} />
             </div>
+          </div>
+        </div>
+
+        {/* Mobile View - Tabs */}
+        <div className="lg:hidden w-full flex flex-col h-full">
+          {/* Tab Buttons */}
+          <div className="flex border-b border-white/10 bg-slate-950/60 sticky top-0 z-10">
+            <button
+              onClick={() => setMobileTab('afc')}
+              className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition ${
+                mobileTab === 'afc' 
+                  ? 'text-red-500 border-b-2 border-red-500 bg-red-500/10' 
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              AFC
+            </button>
+            <button
+              onClick={() => setMobileTab('nfc')}
+              className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition ${
+                mobileTab === 'nfc' 
+                  ? 'text-blue-500 border-b-2 border-blue-500 bg-blue-500/10' 
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              NFC
+            </button>
+            <button
+              onClick={() => setMobileTab('superbowl')}
+              className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition ${
+                mobileTab === 'superbowl' 
+                  ? 'text-yellow-500 border-b-2 border-yellow-500 bg-yellow-500/10' 
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Super Bowl
+            </button>
+          </div>
+
+          {/* Tab Content */}
+          <div className="flex-grow overflow-y-auto p-4">
+            {mobileTab === 'afc' && (
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-lg font-black text-red-500 uppercase mb-4">Wild Card</h3>
+                  <div className="space-y-3">
+                    {afcWildCard.map(m => (
+                      <MatchupCard key={m.id} matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                    ))}
+                  </div>
+                </div>
+                <div className="w-full h-[70px] rounded-xl border border-dashed border-white/10 bg-slate-900/10 flex items-center justify-center space-x-3 opacity-30">
+                  <div className="w-7 h-7 rounded bg-slate-800 flex items-center justify-center font-bold text-[11px] text-white/50">1</div>
+                  <div className="text-left">
+                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest">AFC BYE</div>
+                    <div className="font-bold text-[14px] text-slate-400 uppercase">{afcTeams[0]?.name}</div>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-red-500 uppercase mb-4">Divisional</h3>
+                  <div className="space-y-3">
+                    {afcDivisional.map(m => (
+                      <MatchupCard key={m.id} matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-red-500 uppercase mb-4">Conference Championship</h3>
+                  <MatchupCard matchup={afcChampionship} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                </div>
+              </div>
+            )}
+
+            {mobileTab === 'nfc' && (
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-lg font-black text-blue-500 uppercase mb-4">Wild Card</h3>
+                  <div className="space-y-3">
+                    {nfcWildCard.map(m => (
+                      <MatchupCard key={m.id} matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                    ))}
+                  </div>
+                </div>
+                <div className="w-full h-[70px] rounded-xl border border-dashed border-white/10 bg-slate-900/10 flex items-center justify-center space-x-3 opacity-30">
+                  <div className="w-7 h-7 rounded bg-slate-800 flex items-center justify-center font-bold text-[11px] text-white/50">1</div>
+                  <div className="text-left">
+                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest">NFC BYE</div>
+                    <div className="font-bold text-[14px] text-slate-400 uppercase">{nfcTeams[0]?.name}</div>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-blue-500 uppercase mb-4">Divisional</h3>
+                  <div className="space-y-3">
+                    {nfcDivisional.map(m => (
+                      <MatchupCard key={m.id} matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-blue-500 uppercase mb-4">Conference Championship</h3>
+                  <MatchupCard matchup={nfcChampionship} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                </div>
+              </div>
+            )}
+
+            {mobileTab === 'superbowl' && (
+              <div className="space-y-8">
+                <div className="text-center mb-6">
+                  <div className="relative w-32 h-32 mx-auto mb-4">
+                    <img src={superBowlLogo} alt="Super Bowl LX" className="w-full h-full object-contain opacity-80" />
+                  </div>
+                  <h3 className="text-xl font-black text-yellow-500 uppercase">Super Bowl LX</h3>
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-red-500 uppercase mb-2">AFC Champion</h4>
+                  {afcChampionship.winner ? (
+                    <div className="p-4 bg-slate-900/40 rounded-xl border border-white/10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded" style={{ backgroundColor: afcChampionship.winner.color }}></div>
+                        <div>
+                          <div className="text-xs text-slate-400">{afcChampionship.winner.city}</div>
+                          <div className="text-lg font-bold text-white">{afcChampionship.winner.name}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-slate-900/20 rounded-xl border border-dashed border-white/10 text-center text-slate-500 italic">TBD</div>
+                  )}
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-blue-500 uppercase mb-2">NFC Champion</h4>
+                  {nfcChampionship.winner ? (
+                    <div className="p-4 bg-slate-900/40 rounded-xl border border-white/10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded" style={{ backgroundColor: nfcChampionship.winner.color }}></div>
+                        <div>
+                          <div className="text-xs text-slate-400">{nfcChampionship.winner.city}</div>
+                          <div className="text-lg font-bold text-white">{nfcChampionship.winner.name}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-slate-900/20 rounded-xl border border-dashed border-white/10 text-center text-slate-500 italic">TBD</div>
+                  )}
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-yellow-500 uppercase mb-2">Championship Game</h4>
+                  <MatchupCard matchup={superBowl} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                </div>
+                {superBowl.winner && (
+                  <div className="text-center mt-6 p-6 bg-yellow-500/10 rounded-xl border border-yellow-500/30">
+                    <div className="text-yellow-500 font-black text-xs uppercase tracking-widest mb-2">Super Bowl Winner</div>
+                    <div className="text-3xl font-black text-white italic uppercase">{superBowl.winner.name}</div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </main>

@@ -240,7 +240,7 @@ export default function Bracket() {
       <header className="flex-shrink-0 flex items-center justify-between px-3 lg:px-10 py-3 lg:h-[70px] bg-slate-950/60 backdrop-blur-xl border-b border-white/5 z-50">
         <div className="flex items-center space-x-2 lg:space-x-5">
           <button onClick={() => navigate('/rooms')} className="text-slate-400 hover:text-white transition">
-            <ArrowLeft className="w-5 h-5 lg:w-6 lg:h-6" />
+            <ArrowLeft className="w-6 h-6 lg:w-6 lg:h-6" />
           </button>
           <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-tr from-red-600 via-slate-100 to-blue-600 p-[2px]">
             <div className="bg-slate-950 w-full h-full rounded-[10px] flex items-center justify-center text-white text-[12px] lg:text-[14px] font-black italic">NFL</div>
@@ -256,7 +256,7 @@ export default function Bracket() {
             onClick={() => navigate(`/leaderboard/${roomId}`)}
             className="flex items-center gap-1 lg:gap-2 px-2 lg:px-4 py-1.5 lg:py-2 bg-yellow-600/20 border border-yellow-600/30 text-yellow-400 rounded-lg hover:bg-yellow-600/30 transition text-[10px] lg:text-xs font-bold uppercase tracking-wider"
           >
-            <BarChart3 className="w-3 h-3 lg:w-4 lg:h-4" /> <span className="hidden sm:inline">Leaderboard</span>
+            <BarChart3 className="w-5 h-5 lg:w-4 lg:h-4" /> <span className="hidden sm:inline">Leaderboard</span>
           </button>
           
           {isAdmin && (
@@ -291,13 +291,13 @@ export default function Bracket() {
               onClick={handleSubmitBracket}
               className="flex items-center gap-1 lg:gap-2 px-3 lg:px-6 py-1.5 lg:py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition font-bold uppercase tracking-wider text-[10px] lg:text-sm shadow-xl"
             >
-              <Lock className="w-3 h-3 lg:w-4 lg:h-4" /> <span className="hidden sm:inline">Submit</span><span className="sm:hidden">Submit</span>
+              <Lock className="w-5 h-5 lg:w-4 lg:h-4" /> <span className="hidden sm:inline">Submit</span><span className="sm:hidden">Submit</span>
             </motion.button>
           )}
           
           {isLocked && (
             <div className="px-2 lg:px-4 py-1.5 lg:py-2 bg-green-500/20 border border-green-500/30 rounded-lg text-green-400 text-[10px] lg:text-xs font-bold flex items-center gap-1 lg:gap-2">
-              <Lock className="w-3 h-3 lg:w-4 lg:h-4" /> <span className="hidden sm:inline">SUBMITTED</span>
+              <Lock className="w-5 h-5 lg:w-4 lg:h-4" /> <span className="hidden sm:inline">SUBMITTED</span>
             </div>
           )}
         </div>
@@ -472,7 +472,7 @@ export default function Bracket() {
           {/* Tab Content */}
           <div className="flex-grow overflow-y-auto p-4">
             {mobileTab === 'afc' && (
-              <div className="max-w-md mx-auto space-y-6">
+              <div className="max-w-md mx-auto space-y-6 pb-8">
                 {/* Wild Card Round */}
                 <div>
                   <div className="text-center mb-4">
@@ -489,26 +489,7 @@ export default function Bracket() {
 
                 {/* Arrow Down */}
                 <div className="flex justify-center">
-                  <div className="w-0.5 h-8 bg-gradient-to-b from-red-500/50 to-transparent"></div>
-                </div>
-
-                {/* Bye Week */}
-                <div className="w-full p-4 rounded-xl border-2 border-dashed border-red-500/30 bg-red-500/5 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center">
-                      <span className="font-black text-lg text-red-500">1</span>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-black text-red-500/60 uppercase tracking-widest">First Round Bye</div>
-                      <div className="font-bold text-base text-white uppercase">{afcTeams[0]?.name}</div>
-                    </div>
-                  </div>
-                  <Trophy className="w-5 h-5 text-red-500/40" />
-                </div>
-
-                {/* Arrow Down */}
-                <div className="flex justify-center">
-                  <div className="w-0.5 h-8 bg-gradient-to-b from-red-500/50 to-transparent"></div>
+                  <div className="w-0.5 h-12 bg-gradient-to-b from-red-500/50 to-transparent"></div>
                 </div>
 
                 {/* Divisional Round */}
@@ -523,11 +504,14 @@ export default function Bracket() {
                       <MatchupCard key={m.id} matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
                     ))}
                   </div>
+                  <div className="mt-3 text-center text-xs text-slate-500 italic">
+                    #{afcTeams[0]?.seed} {afcTeams[0]?.name} (First Round Bye)
+                  </div>
                 </div>
 
                 {/* Arrow Down */}
                 <div className="flex justify-center">
-                  <div className="w-0.5 h-8 bg-gradient-to-b from-red-500/50 to-transparent"></div>
+                  <div className="w-0.5 h-12 bg-gradient-to-b from-red-500/50 to-transparent"></div>
                 </div>
 
                 {/* Conference Championship */}
@@ -551,7 +535,7 @@ export default function Bracket() {
             )}
 
             {mobileTab === 'nfc' && (
-              <div className="max-w-md mx-auto space-y-6">
+              <div className="max-w-md mx-auto space-y-6 pb-8">
                 {/* Wild Card Round */}
                 <div>
                   <div className="text-center mb-4">
@@ -568,26 +552,7 @@ export default function Bracket() {
 
                 {/* Arrow Down */}
                 <div className="flex justify-center">
-                  <div className="w-0.5 h-8 bg-gradient-to-b from-blue-500/50 to-transparent"></div>
-                </div>
-
-                {/* Bye Week */}
-                <div className="w-full p-4 rounded-xl border-2 border-dashed border-blue-500/30 bg-blue-500/5 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                      <span className="font-black text-lg text-blue-500">1</span>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-black text-blue-500/60 uppercase tracking-widest">First Round Bye</div>
-                      <div className="font-bold text-base text-white uppercase">{nfcTeams[0]?.name}</div>
-                    </div>
-                  </div>
-                  <Trophy className="w-5 h-5 text-blue-500/40" />
-                </div>
-
-                {/* Arrow Down */}
-                <div className="flex justify-center">
-                  <div className="w-0.5 h-8 bg-gradient-to-b from-blue-500/50 to-transparent"></div>
+                  <div className="w-0.5 h-12 bg-gradient-to-b from-blue-500/50 to-transparent"></div>
                 </div>
 
                 {/* Divisional Round */}
@@ -602,11 +567,14 @@ export default function Bracket() {
                       <MatchupCard key={m.id} matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
                     ))}
                   </div>
+                  <div className="mt-3 text-center text-xs text-slate-500 italic">
+                    #{nfcTeams[0]?.seed} {nfcTeams[0]?.name} (First Round Bye)
+                  </div>
                 </div>
 
                 {/* Arrow Down */}
                 <div className="flex justify-center">
-                  <div className="w-0.5 h-8 bg-gradient-to-b from-blue-500/50 to-transparent"></div>
+                  <div className="w-0.5 h-12 bg-gradient-to-b from-blue-500/50 to-transparent"></div>
                 </div>
 
                 {/* Conference Championship */}

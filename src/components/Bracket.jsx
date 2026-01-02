@@ -237,32 +237,32 @@ export default function Bracket() {
     <div className="min-h-screen w-full flex flex-col bg-[#020617] text-slate-100 relative selection:bg-blue-500/30">
       <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_-20%,#1e293b,transparent_60%)] pointer-events-none opacity-40"></div>
 
-      <header className="h-[70px] flex items-center justify-between px-10 bg-slate-950/60 backdrop-blur-xl border-b border-white/5 z-50">
-        <div className="flex items-center space-x-5">
+      <header className="flex-shrink-0 flex items-center justify-between px-3 lg:px-10 py-3 lg:h-[70px] bg-slate-950/60 backdrop-blur-xl border-b border-white/5 z-50">
+        <div className="flex items-center space-x-2 lg:space-x-5">
           <button onClick={() => navigate('/rooms')} className="text-slate-400 hover:text-white transition">
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-5 h-5 lg:w-6 lg:h-6" />
           </button>
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-red-600 via-slate-100 to-blue-600 p-[2px]">
-            <div className="bg-slate-950 w-full h-full rounded-[10px] flex items-center justify-center text-white text-[14px] font-black italic">NFL</div>
+          <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-tr from-red-600 via-slate-100 to-blue-600 p-[2px]">
+            <div className="bg-slate-950 w-full h-full rounded-[10px] flex items-center justify-center text-white text-[12px] lg:text-[14px] font-black italic">NFL</div>
           </div>
-          <div>
-            <h1 className="text-2xl font-black uppercase tracking-tighter text-white leading-none">Mixin it up Family Bracket</h1>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.4em] mt-1 opacity-60">Professional Playoff Simulator</p>
+          <div className="hidden sm:block">
+            <h1 className="text-lg lg:text-2xl font-black uppercase tracking-tighter text-white leading-none">Mixin it up Family Bracket</h1>
+            <p className="text-[8px] lg:text-[10px] text-slate-500 font-bold uppercase tracking-[0.4em] mt-1 opacity-60">Professional Playoff Simulator</p>
           </div>
         </div>
         
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-2 lg:space-x-6">
           <button
             onClick={() => navigate(`/leaderboard/${roomId}`)}
-            className="flex items-center gap-2 px-4 py-2 bg-yellow-600/20 border border-yellow-600/30 text-yellow-400 rounded-lg hover:bg-yellow-600/30 transition text-xs font-bold uppercase tracking-wider"
+            className="flex items-center gap-1 lg:gap-2 px-2 lg:px-4 py-1.5 lg:py-2 bg-yellow-600/20 border border-yellow-600/30 text-yellow-400 rounded-lg hover:bg-yellow-600/30 transition text-[10px] lg:text-xs font-bold uppercase tracking-wider"
           >
-            <BarChart3 className="w-4 h-4" /> Leaderboard
+            <BarChart3 className="w-3 h-3 lg:w-4 lg:h-4" /> <span className="hidden sm:inline">Leaderboard</span>
           </button>
           
           {isAdmin && (
             <button
               onClick={() => navigate(`/game-results/${roomId}`)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-500/30 text-blue-400 rounded-lg hover:bg-blue-500/30 transition text-xs font-bold uppercase tracking-wider"
+              className="hidden lg:flex items-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-500/30 text-blue-400 rounded-lg hover:bg-blue-500/30 transition text-xs font-bold uppercase tracking-wider"
             >
               <Settings className="w-4 h-4" /> Game Results
             </button>
@@ -278,7 +278,7 @@ export default function Bracket() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleResetAllBrackets}
-              className="flex items-center gap-2 px-4 py-2 bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/30 transition text-xs font-bold uppercase tracking-wider"
+              className="hidden lg:flex items-center gap-2 px-4 py-2 bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/30 transition text-xs font-bold uppercase tracking-wider"
             >
               <Unlock className="w-4 h-4" /> Reset All Brackets
             </motion.button>
@@ -289,15 +289,15 @@ export default function Bracket() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleSubmitBracket}
-              className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition font-bold uppercase tracking-wider text-sm shadow-xl"
+              className="flex items-center gap-1 lg:gap-2 px-3 lg:px-6 py-1.5 lg:py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition font-bold uppercase tracking-wider text-[10px] lg:text-sm shadow-xl"
             >
-              <Lock className="w-4 h-4" /> Submit Bracket
+              <Lock className="w-3 h-3 lg:w-4 lg:h-4" /> <span className="hidden sm:inline">Submit</span><span className="sm:hidden">Submit</span>
             </motion.button>
           )}
           
           {isLocked && (
-            <div className="px-4 py-2 bg-green-500/20 border border-green-500/30 rounded-lg text-green-400 text-xs font-bold flex items-center gap-2">
-              <Lock className="w-4 h-4" /> SUBMITTED
+            <div className="px-2 lg:px-4 py-1.5 lg:py-2 bg-green-500/20 border border-green-500/30 rounded-lg text-green-400 text-[10px] lg:text-xs font-bold flex items-center gap-1 lg:gap-2">
+              <Lock className="w-3 h-3 lg:w-4 lg:h-4" /> <span className="hidden sm:inline">SUBMITTED</span>
             </div>
           )}
         </div>
@@ -472,118 +472,240 @@ export default function Bracket() {
           {/* Tab Content */}
           <div className="flex-grow overflow-y-auto p-4">
             {mobileTab === 'afc' && (
-              <div className="space-y-8">
+              <div className="max-w-md mx-auto space-y-6">
+                {/* Wild Card Round */}
                 <div>
-                  <h3 className="text-lg font-black text-red-500 uppercase mb-4">Wild Card</h3>
+                  <div className="text-center mb-4">
+                    <div className="inline-block px-4 py-1 bg-red-500/20 border border-red-500/30 rounded-full">
+                      <span className="text-xs font-black text-red-500 uppercase tracking-wider">Wild Card Round</span>
+                    </div>
+                  </div>
                   <div className="space-y-3">
                     {afcWildCard.map(m => (
                       <MatchupCard key={m.id} matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
                     ))}
                   </div>
                 </div>
-                <div className="w-full h-[70px] rounded-xl border border-dashed border-white/10 bg-slate-900/10 flex items-center justify-center space-x-3 opacity-30">
-                  <div className="w-7 h-7 rounded bg-slate-800 flex items-center justify-center font-bold text-[11px] text-white/50">1</div>
-                  <div className="text-left">
-                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest">AFC BYE</div>
-                    <div className="font-bold text-[14px] text-slate-400 uppercase">{afcTeams[0]?.name}</div>
-                  </div>
+
+                {/* Arrow Down */}
+                <div className="flex justify-center">
+                  <div className="w-0.5 h-8 bg-gradient-to-b from-red-500/50 to-transparent"></div>
                 </div>
+
+                {/* Bye Week */}
+                <div className="w-full p-4 rounded-xl border-2 border-dashed border-red-500/30 bg-red-500/5 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center">
+                      <span className="font-black text-lg text-red-500">1</span>
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-black text-red-500/60 uppercase tracking-widest">First Round Bye</div>
+                      <div className="font-bold text-base text-white uppercase">{afcTeams[0]?.name}</div>
+                    </div>
+                  </div>
+                  <Trophy className="w-5 h-5 text-red-500/40" />
+                </div>
+
+                {/* Arrow Down */}
+                <div className="flex justify-center">
+                  <div className="w-0.5 h-8 bg-gradient-to-b from-red-500/50 to-transparent"></div>
+                </div>
+
+                {/* Divisional Round */}
                 <div>
-                  <h3 className="text-lg font-black text-red-500 uppercase mb-4">Divisional</h3>
+                  <div className="text-center mb-4">
+                    <div className="inline-block px-4 py-1 bg-red-500/20 border border-red-500/30 rounded-full">
+                      <span className="text-xs font-black text-red-500 uppercase tracking-wider">Divisional Round</span>
+                    </div>
+                  </div>
                   <div className="space-y-3">
                     {afcDivisional.map(m => (
                       <MatchupCard key={m.id} matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
                     ))}
                   </div>
                 </div>
+
+                {/* Arrow Down */}
+                <div className="flex justify-center">
+                  <div className="w-0.5 h-8 bg-gradient-to-b from-red-500/50 to-transparent"></div>
+                </div>
+
+                {/* Conference Championship */}
                 <div>
-                  <h3 className="text-lg font-black text-red-500 uppercase mb-4">Conference Championship</h3>
+                  <div className="text-center mb-4">
+                    <div className="inline-block px-4 py-1 bg-red-500/20 border border-red-500/30 rounded-full">
+                      <span className="text-xs font-black text-red-500 uppercase tracking-wider">AFC Championship</span>
+                    </div>
+                  </div>
                   <MatchupCard matchup={afcChampionship} onPickWinner={handlePickWinner} isLocked={isLocked} />
                 </div>
+
+                {/* Winner Display */}
+                {afcChampionship.winner && (
+                  <div className="text-center p-6 bg-red-500/10 rounded-xl border border-red-500/30">
+                    <div className="text-red-500 font-black text-xs uppercase tracking-widest mb-2">AFC Champion</div>
+                    <div className="text-2xl font-black text-white italic uppercase">{afcChampionship.winner.name}</div>
+                  </div>
+                )}
               </div>
             )}
 
             {mobileTab === 'nfc' && (
-              <div className="space-y-8">
+              <div className="max-w-md mx-auto space-y-6">
+                {/* Wild Card Round */}
                 <div>
-                  <h3 className="text-lg font-black text-blue-500 uppercase mb-4">Wild Card</h3>
+                  <div className="text-center mb-4">
+                    <div className="inline-block px-4 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full">
+                      <span className="text-xs font-black text-blue-500 uppercase tracking-wider">Wild Card Round</span>
+                    </div>
+                  </div>
                   <div className="space-y-3">
                     {nfcWildCard.map(m => (
                       <MatchupCard key={m.id} matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
                     ))}
                   </div>
                 </div>
-                <div className="w-full h-[70px] rounded-xl border border-dashed border-white/10 bg-slate-900/10 flex items-center justify-center space-x-3 opacity-30">
-                  <div className="w-7 h-7 rounded bg-slate-800 flex items-center justify-center font-bold text-[11px] text-white/50">1</div>
-                  <div className="text-left">
-                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest">NFC BYE</div>
-                    <div className="font-bold text-[14px] text-slate-400 uppercase">{nfcTeams[0]?.name}</div>
-                  </div>
+
+                {/* Arrow Down */}
+                <div className="flex justify-center">
+                  <div className="w-0.5 h-8 bg-gradient-to-b from-blue-500/50 to-transparent"></div>
                 </div>
+
+                {/* Bye Week */}
+                <div className="w-full p-4 rounded-xl border-2 border-dashed border-blue-500/30 bg-blue-500/5 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                      <span className="font-black text-lg text-blue-500">1</span>
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-black text-blue-500/60 uppercase tracking-widest">First Round Bye</div>
+                      <div className="font-bold text-base text-white uppercase">{nfcTeams[0]?.name}</div>
+                    </div>
+                  </div>
+                  <Trophy className="w-5 h-5 text-blue-500/40" />
+                </div>
+
+                {/* Arrow Down */}
+                <div className="flex justify-center">
+                  <div className="w-0.5 h-8 bg-gradient-to-b from-blue-500/50 to-transparent"></div>
+                </div>
+
+                {/* Divisional Round */}
                 <div>
-                  <h3 className="text-lg font-black text-blue-500 uppercase mb-4">Divisional</h3>
+                  <div className="text-center mb-4">
+                    <div className="inline-block px-4 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full">
+                      <span className="text-xs font-black text-blue-500 uppercase tracking-wider">Divisional Round</span>
+                    </div>
+                  </div>
                   <div className="space-y-3">
                     {nfcDivisional.map(m => (
                       <MatchupCard key={m.id} matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
                     ))}
                   </div>
                 </div>
+
+                {/* Arrow Down */}
+                <div className="flex justify-center">
+                  <div className="w-0.5 h-8 bg-gradient-to-b from-blue-500/50 to-transparent"></div>
+                </div>
+
+                {/* Conference Championship */}
                 <div>
-                  <h3 className="text-lg font-black text-blue-500 uppercase mb-4">Conference Championship</h3>
+                  <div className="text-center mb-4">
+                    <div className="inline-block px-4 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full">
+                      <span className="text-xs font-black text-blue-500 uppercase tracking-wider">NFC Championship</span>
+                    </div>
+                  </div>
                   <MatchupCard matchup={nfcChampionship} onPickWinner={handlePickWinner} isLocked={isLocked} />
                 </div>
+
+                {/* Winner Display */}
+                {nfcChampionship.winner && (
+                  <div className="text-center p-6 bg-blue-500/10 rounded-xl border border-blue-500/30">
+                    <div className="text-blue-500 font-black text-xs uppercase tracking-widest mb-2">NFC Champion</div>
+                    <div className="text-2xl font-black text-white italic uppercase">{nfcChampionship.winner.name}</div>
+                  </div>
+                )}
               </div>
             )}
 
             {mobileTab === 'superbowl' && (
-              <div className="space-y-8">
-                <div className="text-center mb-6">
-                  <div className="relative w-32 h-32 mx-auto mb-4">
+              <div className="max-w-md mx-auto space-y-6">
+                {/* Logo */}
+                <div className="text-center py-6">
+                  <div className="relative w-40 h-40 mx-auto mb-4">
+                    <motion.div 
+                      animate={{ opacity: [0.05, 0.15, 0.05] }}
+                      transition={{ duration: 4, repeat: Infinity }}
+                      className="absolute inset-0 bg-yellow-600/10 rounded-full blur-2xl"
+                    />
                     <img src={superBowlLogo} alt="Super Bowl LX" className="w-full h-full object-contain opacity-80" />
                   </div>
-                  <h3 className="text-xl font-black text-yellow-500 uppercase">Super Bowl LX</h3>
+                  <h3 className="text-2xl font-black text-yellow-500 uppercase tracking-wider">Super Bowl LX</h3>
+                  <p className="text-xs text-slate-400 mt-1">Championship Game</p>
                 </div>
-                <div>
-                  <h4 className="text-sm font-bold text-red-500 uppercase mb-2">AFC Champion</h4>
-                  {afcChampionship.winner ? (
-                    <div className="p-4 bg-slate-900/40 rounded-xl border border-white/10">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded" style={{ backgroundColor: afcChampionship.winner.color }}></div>
-                        <div>
-                          <div className="text-xs text-slate-400">{afcChampionship.winner.city}</div>
-                          <div className="text-lg font-bold text-white">{afcChampionship.winner.name}</div>
-                        </div>
-                      </div>
+
+                {/* Conference Champions */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <div className="text-center mb-2">
+                      <span className="text-[10px] font-black text-red-500 uppercase tracking-wider">AFC</span>
                     </div>
-                  ) : (
-                    <div className="p-4 bg-slate-900/20 rounded-xl border border-dashed border-white/10 text-center text-slate-500 italic">TBD</div>
-                  )}
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-blue-500 uppercase mb-2">NFC Champion</h4>
-                  {nfcChampionship.winner ? (
-                    <div className="p-4 bg-slate-900/40 rounded-xl border border-white/10">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded" style={{ backgroundColor: nfcChampionship.winner.color }}></div>
-                        <div>
-                          <div className="text-xs text-slate-400">{nfcChampionship.winner.city}</div>
-                          <div className="text-lg font-bold text-white">{nfcChampionship.winner.name}</div>
-                        </div>
+                    {afcChampionship.winner ? (
+                      <div className="p-3 bg-red-500/10 rounded-xl border border-red-500/30 text-center">
+                        <div className="w-8 h-8 rounded mx-auto mb-2" style={{ backgroundColor: afcChampionship.winner.color }}></div>
+                        <div className="text-xs font-bold text-white">{afcChampionship.winner.name}</div>
                       </div>
+                    ) : (
+                      <div className="p-3 bg-slate-900/20 rounded-xl border border-dashed border-white/10 text-center text-slate-500 italic text-xs h-20 flex items-center justify-center">TBD</div>
+                    )}
+                  </div>
+                  <div>
+                    <div className="text-center mb-2">
+                      <span className="text-[10px] font-black text-blue-500 uppercase tracking-wider">NFC</span>
                     </div>
-                  ) : (
-                    <div className="p-4 bg-slate-900/20 rounded-xl border border-dashed border-white/10 text-center text-slate-500 italic">TBD</div>
-                  )}
+                    {nfcChampionship.winner ? (
+                      <div className="p-3 bg-blue-500/10 rounded-xl border border-blue-500/30 text-center">
+                        <div className="w-8 h-8 rounded mx-auto mb-2" style={{ backgroundColor: nfcChampionship.winner.color }}></div>
+                        <div className="text-xs font-bold text-white">{nfcChampionship.winner.name}</div>
+                      </div>
+                    ) : (
+                      <div className="p-3 bg-slate-900/20 rounded-xl border border-dashed border-white/10 text-center text-slate-500 italic text-xs h-20 flex items-center justify-center">TBD</div>
+                    )}
+                  </div>
                 </div>
+
+                {/* Arrow Down */}
+                <div className="flex justify-center">
+                  <div className="w-0.5 h-8 bg-gradient-to-b from-yellow-500/50 to-transparent"></div>
+                </div>
+
+                {/* Championship Matchup */}
                 <div>
-                  <h4 className="text-sm font-bold text-yellow-500 uppercase mb-2">Championship Game</h4>
+                  <div className="text-center mb-4">
+                    <div className="inline-block px-4 py-1 bg-yellow-500/20 border border-yellow-500/30 rounded-full">
+                      <span className="text-xs font-black text-yellow-500 uppercase tracking-wider">The Big Game</span>
+                    </div>
+                  </div>
                   <MatchupCard matchup={superBowl} onPickWinner={handlePickWinner} isLocked={isLocked} />
                 </div>
+
+                {/* Winner Display */}
                 {superBowl.winner && (
-                  <div className="text-center mt-6 p-6 bg-yellow-500/10 rounded-xl border border-yellow-500/30">
-                    <div className="text-yellow-500 font-black text-xs uppercase tracking-widest mb-2">Super Bowl Winner</div>
-                    <div className="text-3xl font-black text-white italic uppercase">{superBowl.winner.name}</div>
-                  </div>
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center p-8 bg-gradient-to-b from-yellow-500/20 to-yellow-600/10 rounded-2xl border-2 border-yellow-500/40 relative overflow-hidden"
+                  >
+                    <motion.div 
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="absolute inset-0 bg-yellow-500/5 rounded-2xl"
+                    />
+                    <Trophy className="w-12 h-12 text-yellow-500 mx-auto mb-3" />
+                    <div className="text-yellow-500 font-black text-xs uppercase tracking-widest mb-2">Super Bowl Champion</div>
+                    <div className="text-3xl font-black text-white italic uppercase leading-tight">{superBowl.winner.name}</div>
+                  </motion.div>
                 )}
               </div>
             )}

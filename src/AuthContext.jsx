@@ -27,21 +27,22 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         await user.reload();
-      }
-      setUser(user);
-      setIsAdmin(user ? ADMIN_EMAILS.includes(user.email) : false);
-      
-      if (user) {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const freshUser = auth.currentUser;
+        setUser(freshUser);
+        setIsAdmin(freshUser ? ADMIN_EMAILS.includes(freshUser.email) : false);
+        
+        const userDoc = await getDoc(doc(db, 'users', freshUser.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
           setUsername(userData.username);
           setIsFirstLogin(!userData.hasSeenTutorial);
         } else {
-          setUsername(user.displayName || user.email.split('@')[0]);
+          setUsername(freshUser.displayName || freshUser.email.split('@')[0]);
           setIsFirstLogin(true);
         }
       } else {
+        setUser(null);
+        setIsAdmin(false);
         setUsername(null);
         setIsFirstLogin(false);
       }

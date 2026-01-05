@@ -184,37 +184,37 @@ export default function RoomSelection() {
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-12">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 sm:mb-12">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-red-600 via-slate-100 to-blue-600 p-[2px] transition-transform duration-500">
-              <div className="bg-[#020617] w-full h-full rounded-[10px] flex items-center justify-center text-white text-[14px] font-black italic">NFL</div>
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-red-600 via-slate-100 to-blue-600 p-[2px] transition-transform duration-500">
+              <div className="bg-[#020617] w-full h-full rounded-[10px] flex items-center justify-center text-white text-[12px] sm:text-[14px] font-black italic">NFL</div>
             </div>
             <div>
-              <h1 className="text-4xl font-black uppercase tracking-tighter text-white leading-none">Mixin it up Family Bracket</h1>
-              <p className="text-blue-200 text-sm">Welcome back, {username || 'User'}</p>
+              <h1 className="text-xl sm:text-4xl font-black uppercase tracking-tighter text-white leading-none">Mixin it up Family Bracket</h1>
+              <p className="text-blue-200 text-xs sm:text-sm">Welcome back, {username || 'User'}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <button 
               onClick={() => setShowTutorial(true)} 
-              className="flex items-center gap-2 bg-blue-500/20 backdrop-blur-sm border border-blue-400/30 text-blue-200 px-6 py-3 rounded-xl hover:bg-blue-500/30 transition-all duration-300 shadow-lg hover:shadow-blue-500/20"
+              className="flex items-center gap-1 sm:gap-2 bg-blue-500/20 backdrop-blur-sm border border-blue-400/30 text-blue-200 px-3 sm:px-6 py-2 sm:py-3 rounded-xl hover:bg-blue-500/30 transition-all duration-300 shadow-lg hover:shadow-blue-500/20 text-sm sm:text-base"
               title="How to Use"
             >
-              <HelpCircle className="w-4 h-4" /> Tutorial
+              <HelpCircle className="w-4 h-4" /> <span className="hidden sm:inline">Rules & Help</span><span className="sm:hidden">Help</span>
             </button>
             {isAdmin && (
               <button 
                 onClick={() => navigate('/admin/playoff-config')} 
-                className="flex items-center gap-2 bg-blue-500/20 backdrop-blur-sm border border-blue-400/30 text-blue-200 px-6 py-3 rounded-xl hover:bg-blue-500/30 transition-all duration-300 shadow-lg hover:shadow-blue-500/20"
+                className="flex items-center gap-1 sm:gap-2 bg-blue-500/20 backdrop-blur-sm border border-blue-400/30 text-blue-200 px-3 sm:px-6 py-2 sm:py-3 rounded-xl hover:bg-blue-500/30 transition-all duration-300 shadow-lg hover:shadow-blue-500/20 text-sm sm:text-base"
               >
-                <Settings className="w-4 h-4" /> Playoff Config
+                <Settings className="w-4 h-4" /> <span className="hidden sm:inline">Playoff Config</span>
               </button>
             )}
             <button 
               onClick={logout} 
-              className="flex items-center gap-2 bg-red-500/20 backdrop-blur-sm border border-red-400/30 text-red-200 px-6 py-3 rounded-xl hover:bg-red-500/30 transition-all duration-300 shadow-lg hover:shadow-red-500/20"
+              className="flex items-center gap-1 sm:gap-2 bg-red-500/20 backdrop-blur-sm border border-red-400/30 text-red-200 px-3 sm:px-6 py-2 sm:py-3 rounded-xl hover:bg-red-500/30 transition-all duration-300 shadow-lg hover:shadow-red-500/20 text-sm sm:text-base"
             >
-              <LogOut className="w-4 h-4" /> Logout
+              <LogOut className="w-4 h-4" /> <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
         </div>
@@ -317,27 +317,27 @@ export default function RoomSelection() {
             </div>
 
             {/* My Rooms */}
-            <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-xl">
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                <Trophy className="w-6 h-6 text-yellow-600/90" />
+            <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-2xl p-4 sm:p-8 shadow-xl">
+              <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6 flex items-center gap-3">
+                <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600/90" />
                 My Rooms
               </h2>
-              <div className="grid gap-4">
+              <div className="grid gap-3 sm:gap-4">
                 {userRooms.map(room => (
                   <div
                     key={room.id}
-                    className="flex items-center justify-between p-6 bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl hover:bg-slate-800/50 transition-all duration-300 hover:shadow-lg"
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 sm:p-6 bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl hover:bg-slate-800/50 transition-all duration-300 hover:shadow-lg"
                   >
                     <button
                       onClick={() => navigate(`/bracket/${room.roomId}`)}
-                      className="flex items-center gap-4 flex-grow text-left"
+                      className="flex items-center gap-3 sm:gap-4 flex-grow text-left w-full sm:w-auto"
                     >
-                      <div className="bg-gradient-to-br from-yellow-600/80 to-yellow-700/80 px-4 py-2 rounded-lg shadow-lg shadow-yellow-600/10">
-                        <span className="text-white font-bold text-lg tracking-wider">{room.roomCode}</span>
+                      <div className="bg-gradient-to-br from-yellow-600/80 to-yellow-700/80 px-3 sm:px-4 py-1 sm:py-2 rounded-lg shadow-lg shadow-yellow-600/10">
+                        <span className="text-white font-bold text-base sm:text-lg tracking-wider">{room.roomCode}</span>
                       </div>
-                      <span className="text-white font-semibold text-lg">Room {room.roomCode}</span>
+                      <span className="text-white font-semibold text-base sm:text-lg">Room {room.roomCode}</span>
                     </button>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
                       <button
                         onClick={(e) => { e.stopPropagation(); shareRoom(room.roomCode); }}
                         className="p-2 bg-green-500/20 border border-green-500/30 rounded-lg hover:bg-green-500/30 transition text-green-400"
@@ -363,7 +363,7 @@ export default function RoomSelection() {
                           </button>
                         </>
                       )}
-                      <ArrowRight className="w-5 h-5 text-yellow-600/70" />
+                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600/70 hidden sm:block" />
                     </div>
                   </div>
                 ))}

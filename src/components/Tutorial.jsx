@@ -335,17 +335,17 @@ export default function Tutorial({ isOpen, onClose }) {
         </div>
 
         {/* Footer Navigation */}
-        <div className="bg-slate-800/50 border-t border-white/10 p-6 flex items-center justify-between">
+        <div className="bg-slate-800/50 border-t border-white/10 p-4 sm:p-6 flex items-center justify-between gap-2">
           <button
             onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
             disabled={currentPage === 0}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-700 transition"
+            className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white text-sm sm:text-base disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-700 transition flex-shrink-0"
           >
             <ChevronLeft className="w-4 h-4" />
-            Previous
+            <span className="hidden sm:inline">Previous</span>
           </button>
 
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center flex-shrink-0">
             {pages.map((_, index) => (
               <button
                 key={index}
@@ -362,16 +362,16 @@ export default function Tutorial({ isOpen, onClose }) {
           {currentPage === pages.length - 1 ? (
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-gradient-to-r from-yellow-600/80 to-yellow-700/80 rounded-lg text-white font-semibold hover:from-yellow-600/90 hover:to-yellow-700/90 transition shadow-lg"
+              className="px-4 sm:px-6 py-2 bg-gradient-to-r from-yellow-600/80 to-yellow-700/80 rounded-lg text-white text-sm sm:text-base font-semibold hover:from-yellow-600/90 hover:to-yellow-700/90 transition shadow-lg flex-shrink-0"
             >
               Get Started!
             </button>
           ) : (
             <button
               onClick={() => setCurrentPage(prev => Math.min(pages.length - 1, prev + 1))}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-600/80 to-yellow-700/80 rounded-lg text-white font-semibold hover:from-yellow-600/90 hover:to-yellow-700/90 transition shadow-lg"
+              className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-yellow-600/80 to-yellow-700/80 rounded-lg text-white text-sm sm:text-base font-semibold hover:from-yellow-600/90 hover:to-yellow-700/90 transition shadow-lg flex-shrink-0"
             >
-              Next
+              <span className="hidden sm:inline">Next</span>
               <ChevronRight className="w-4 h-4" />
             </button>
           )}

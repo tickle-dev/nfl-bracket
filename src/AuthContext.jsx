@@ -25,6 +25,9 @@ export const AuthProvider = ({ children }) => {
     }
     
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        await user.reload();
+      }
       setUser(user);
       setIsAdmin(user ? ADMIN_EMAILS.includes(user.email) : false);
       
@@ -50,7 +53,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     if (!auth) throw new Error('Firebase not configured');
-    return await signInWithEmailAndPassword(auth, email, password);
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    await result.user.reload();
+    return result;
   };
   
   const signup = async (email, password, username) => {

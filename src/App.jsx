@@ -8,6 +8,7 @@ import Leaderboard from './components/Leaderboard';
 import GameResults from './components/GameResults';
 import PlayoffConfig from './components/PlayoffConfig';
 import EmailVerificationNotice from './components/EmailVerificationNotice';
+import VerifyEmail from './components/VerifyEmail';
 import AdminChecker from './components/AdminChecker';
 
 function PrivateRoute({ children }) {
@@ -17,7 +18,6 @@ function PrivateRoute({ children }) {
   if (loading) return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
   
   if (!user) {
-    // Preserve the full path including query parameters
     return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />;
   }
   
@@ -37,6 +37,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/rooms" element={<PrivateRoute><RoomSelection /></PrivateRoute>} />
           <Route path="/bracket/:roomId" element={<PrivateRoute><Bracket /></PrivateRoute>} />
           <Route path="/admin/brackets/:roomId" element={<PrivateRoute><AdminBracketView /></PrivateRoute>} />

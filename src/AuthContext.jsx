@@ -50,14 +50,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     if (!auth) throw new Error('Firebase not configured');
-    const result = await signInWithEmailAndPassword(auth, email, password);
-    await result.user.reload();
-    
-    if (!auth.currentUser.emailVerified) {
-      throw new Error('EMAIL_NOT_VERIFIED');
-    }
-    
-    return result;
+    return await signInWithEmailAndPassword(auth, email, password);
   };
   
   const signup = async (email, password, username) => {
@@ -76,7 +69,7 @@ export const AuthProvider = ({ children }) => {
       hasSeenTutorial: false
     });
     await sendEmailVerification(result.user, {
-      url: window.location.origin + '/login?verified=true',
+      url: window.location.origin + '/verify-email',
       handleCodeInApp: false
     });
     return result;

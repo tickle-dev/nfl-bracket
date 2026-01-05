@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function MatchupCard({ matchup, onPickWinner, isLocked = false }) {
-  const { team1, team2, winner, result, statusDetail, homeScore, awayScore, isInProgress, isCompleted } = matchup;
+  const { team1, team2, winner, result, statusDetail, homeScore, awayScore, isInProgress, isCompleted, conference } = matchup;
 
   const getScoreDisplay = () => {
     if (!team1 || !team2) return 'Game Not Started';
@@ -12,6 +12,14 @@ export default function MatchupCard({ matchup, onPickWinner, isLocked = false })
       return `Live: ${team1.isHome ? homeScore : awayScore} - ${team1.isHome ? awayScore : homeScore}`;
     }
     return statusDetail || 'Game Not Started';
+  };
+
+  const getLiveBorderClass = () => {
+    if (!isInProgress) return '';
+    if (conference === 'AFC') return 'ring-2 ring-red-500 shadow-lg shadow-red-500/50';
+    if (conference === 'NFC') return 'ring-2 ring-blue-500 shadow-lg shadow-blue-500/50';
+    if (conference === 'SB') return 'ring-2 ring-yellow-500 shadow-lg shadow-yellow-500/50';
+    return ''; // Default: no border if conference unknown
   };
 
   const renderTeam = (team, isSecond) => {
@@ -99,7 +107,7 @@ export default function MatchupCard({ matchup, onPickWinner, isLocked = false })
         </span>
       </div>
       
-      <div className="shadow-2xl rounded-xl overflow-hidden flex flex-col border border-white/5 bg-slate-900/20 backdrop-blur-sm">
+      <div className={`shadow-2xl rounded-xl overflow-hidden flex flex-col border border-white/5 bg-slate-900/20 backdrop-blur-sm ${getLiveBorderClass()}`}>
         {renderTeam(team1, false)}
         {renderTeam(team2, true)}
       </div>

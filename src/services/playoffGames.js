@@ -5,10 +5,10 @@ export const fetchPlayoffGames = async () => {
   try {
     // Fetch all playoff weeks
     const weeks = await Promise.all([
-      fetch(`${ESPN_PLAYOFF_API}&week=1`).then(r => r.json()), // Wild Card
-      fetch(`${ESPN_PLAYOFF_API}&week=2`).then(r => r.json()), // Divisional
-      fetch(`${ESPN_PLAYOFF_API}&week=3`).then(r => r.json()), // Conference
-      fetch(`${ESPN_PLAYOFF_API}&week=4`).then(r => r.json())  // Super Bowl
+      fetch(`${ESPN_PLAYOFF_API}&week=1`).then(r => r.json()).catch(() => ({ events: [] })),
+      fetch(`${ESPN_PLAYOFF_API}&week=2`).then(r => r.json()).catch(() => ({ events: [] })),
+      fetch(`${ESPN_PLAYOFF_API}&week=3`).then(r => r.json()).catch(() => ({ events: [] })),
+      fetch(`${ESPN_PLAYOFF_API}&week=4`).then(r => r.json()).catch(() => ({ events: [] }))
     ]);
 
     return {
@@ -19,7 +19,13 @@ export const fetchPlayoffGames = async () => {
     };
   } catch (error) {
     console.error('Error fetching playoff games:', error);
-    return null;
+    // Return empty structure instead of null
+    return {
+      wildCard: [],
+      divisional: [],
+      conference: [],
+      superBowl: []
+    };
   }
 };
 

@@ -154,14 +154,14 @@ export default function Bracket() {
   const isLocked = bracket?.submitted === true;
   const isRoomCreator = roomCreator === user.uid;
 
-  // Get games by round and conference
-  const afcWildCard = playoffGames.wildCard.filter(g => g.conference === 'AFC');
-  const nfcWildCard = playoffGames.wildCard.filter(g => g.conference === 'NFC');
-  const afcDivisional = playoffGames.divisional.filter(g => g.conference === 'AFC');
-  const nfcDivisional = playoffGames.divisional.filter(g => g.conference === 'NFC');
-  const afcChampionship = playoffGames.conference.find(g => g.conference === 'AFC');
-  const nfcChampionship = playoffGames.conference.find(g => g.conference === 'NFC');
-  const superBowl = playoffGames.superBowl[0] || { team1: null, team2: null, winner: null };
+  // Get games by round and conference with fallbacks
+  const afcWildCard = playoffGames?.wildCard?.filter(g => g.conference === 'AFC') || [];
+  const nfcWildCard = playoffGames?.wildCard?.filter(g => g.conference === 'NFC') || [];
+  const afcDivisional = playoffGames?.divisional?.filter(g => g.conference === 'AFC') || [];
+  const nfcDivisional = playoffGames?.divisional?.filter(g => g.conference === 'NFC') || [];
+  const afcChampionship = playoffGames?.conference?.find(g => g.conference === 'AFC') || { team1: null, team2: null, winner: null, conference: 'AFC' };
+  const nfcChampionship = playoffGames?.conference?.find(g => g.conference === 'NFC') || { team1: null, team2: null, winner: null, conference: 'NFC' };
+  const superBowl = playoffGames?.superBowl?.[0] || { team1: null, team2: null, winner: null, conference: 'SB' };
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-[#020617] text-slate-100 relative selection:bg-blue-500/30">

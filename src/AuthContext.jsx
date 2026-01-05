@@ -51,9 +51,11 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     if (!auth) throw new Error('Firebase not configured');
     const result = await signInWithEmailAndPassword(auth, email, password);
-    
-    // Reload user to get latest emailVerified status
     await result.user.reload();
+    
+    if (!auth.currentUser.emailVerified) {
+      throw new Error('EMAIL_NOT_VERIFIED');
+    }
     
     return result;
   };

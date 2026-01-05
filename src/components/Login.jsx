@@ -60,7 +60,11 @@ export default function Login() {
         setVerificationSent(true);
       }
     } catch (err) {
-      setError(err.message);
+      if (err.message === 'EMAIL_NOT_VERIFIED') {
+        setError('Please verify your email before signing in. Check your inbox and spam folder.');
+      } else {
+        setError(err.message);
+      }
     }
   };
 

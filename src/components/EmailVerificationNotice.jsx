@@ -44,10 +44,7 @@ export default function EmailVerificationNotice() {
     setResending(true);
     setMessage('');
     try {
-      await sendEmailVerification(user, {
-        url: window.location.origin + '/verify-email',
-        handleCodeInApp: false
-      });
+      await sendEmailVerification(user);
       setMessage('Verification email sent! Please check your inbox and spam folder.');
     } catch (err) {
       setMessage('Error sending email. Please try again later.');

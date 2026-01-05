@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { applyActionCode } from 'firebase/auth';
+import { auth } from '../firebase';
 import { LogIn, Mail, AlertCircle, CheckCircle } from 'lucide-react';
 
 export default function Login() {
@@ -16,13 +18,27 @@ export default function Login() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const from = location.state?.from || '/rooms';
-  const isVerified = searchParams.get('verified') === 'true';
+  const mode = searchParams.get('mode');
+  const oobCode = searchParams.get('oobCode');
+  const [verifying, setVerifying] = useState(false);
+  const [verifySuccess, setVerifySuccess] = useState(false);
 
   useEffect(() => {
-    if (isVerified) {
-      setIsLogin(true);
-    }
-  }, [isVerified]);
+    const handleEmailVerification = async () => {
+      if (mode === 'verifyEmail' && oobCode) {
+        setVerifying(true);
+        try {
+          await applyActionCode(auth, oobCode);
+          setVerifySuccess(true);
+          setIsLogin(true);
+        } catch (err) {
+          setError('Verification failed: ' + err.message);
+        }
+        setVerifying(false);
+      }
+    };
+    handleEmailVerification();
+  }, [mode, oobCode]);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -87,7 +103,17 @@ export default function Login() {
         <h1 className="text-3xl font-black text-center mb-2 text-white uppercase tracking-tight">Mixin it up Family Bracket</h1>
         <p className="text-center text-slate-400 mb-6 text-sm">{isLogin ? 'Sign in to continue' : 'Create your account'}</p>
         
-        {isVerified && (
+        {verifying && (
+          <div className="bg-blue-500/10 border-2 border-blue-500/30 rounded-lg p-4 mb-4 flex items-start gap-3">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-400"></div>
+            <div>
+              <h4 className="text-blue-400 font-bold text-base mb-1">Verifying Email...</h4>
+              <p className="text-blue-200 text-sm">Please wait while we verify your email address.</p>
+            </div>
+          </div>
+        )}
+        
+        {verifySuccess && (
           <div className="bg-green-500/10 border-2 border-green-500/30 rounded-lg p-4 mb-4 flex items-start gap-3">
             <CheckCircle className="w-6 h-6 text-green-400 flex-shrink-0 mt-0.5" />
             <div>

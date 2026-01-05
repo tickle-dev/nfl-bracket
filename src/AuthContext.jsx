@@ -68,10 +68,7 @@ export const AuthProvider = ({ children }) => {
       emailVerified: false,
       hasSeenTutorial: false
     });
-    await sendEmailVerification(result.user, {
-      url: window.location.origin + '/verify-email',
-      handleCodeInApp: false
-    });
+    await sendEmailVerification(result.user);
     return result;
   };
   

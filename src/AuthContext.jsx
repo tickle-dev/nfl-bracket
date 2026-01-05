@@ -54,6 +54,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     if (!auth) throw new Error('Firebase not configured');
+    setLoading(true);
     const result = await signInWithEmailAndPassword(auth, email, password);
     await result.user.reload();
     await result.user.getIdToken(true);

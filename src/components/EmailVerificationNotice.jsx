@@ -11,6 +11,19 @@ export default function EmailVerificationNotice() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
+    // Check immediately on mount
+    const checkImmediately = async () => {
+      if (user) {
+        await user.reload();
+        const refreshedUser = auth.currentUser;
+        if (refreshedUser && refreshedUser.emailVerified) {
+          window.location.reload();
+        }
+      }
+    };
+    checkImmediately();
+    
+    // Then check every second
     const interval = setInterval(async () => {
       if (user) {
         await user.reload();
@@ -19,7 +32,7 @@ export default function EmailVerificationNotice() {
           window.location.reload();
         }
       }
-    }, 3000);
+    }, 1000);
     return () => clearInterval(interval);
   }, [user]);
 

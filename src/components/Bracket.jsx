@@ -583,10 +583,25 @@ export default function Bracket() {
                       <span className="text-base font-black text-red-500 uppercase tracking-wider">AFC</span>
                     </div>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-4 flex flex-col items-center">
                     {afcWildCard.map(m => (
-                      <MatchupCard key={m.id} matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                      <div key={m.id} className="w-[220px]">
+                        <MatchupCard matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                      </div>
                     ))}
+                  </div>
+                  <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg w-[220px] mx-auto">
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-red-500/30 flex items-center justify-center">
+                        <span className="font-black text-sm text-red-500">1</span>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs text-red-500/80 font-bold uppercase">First Round Bye</div>
+                        <div className="text-base font-black text-white uppercase">
+                          {afcByeTeam ? `${afcByeTeam.city} ${afcByeTeam.name}` : 'TBD'}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -595,10 +610,25 @@ export default function Bracket() {
                       <span className="text-base font-black text-blue-500 uppercase tracking-wider">NFC</span>
                     </div>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-4 flex flex-col items-center">
                     {nfcWildCard.map(m => (
-                      <MatchupCard key={m.id} matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                      <div key={m.id} className="w-[220px]">
+                        <MatchupCard matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                      </div>
                     ))}
+                  </div>
+                  <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg w-[220px] mx-auto">
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-blue-500/30 flex items-center justify-center">
+                        <span className="font-black text-sm text-blue-500">1</span>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs text-blue-500/80 font-bold uppercase">First Round Bye</div>
+                        <div className="text-base font-black text-white uppercase">
+                          {nfcByeTeam ? `${nfcByeTeam.city} ${nfcByeTeam.name}` : 'TBD'}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -624,23 +654,12 @@ export default function Bracket() {
                       <span className="text-base font-black text-red-500 uppercase tracking-wider">AFC</span>
                     </div>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-4 flex flex-col items-center">
                     {afcDivisional.map(m => (
-                      <MatchupCard key={m.id} matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                      <div key={m.id} className="w-[220px]">
+                        <MatchupCard matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                      </div>
                     ))}
-                  </div>
-                  <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-red-500/30 flex items-center justify-center">
-                        <span className="font-black text-sm text-red-500">1</span>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-xs text-red-500/80 font-bold uppercase">First Round Bye</div>
-                        <div className="text-base font-black text-white uppercase">
-                          {afcByeTeam ? `${afcByeTeam.city} ${afcByeTeam.name}` : 'TBD'}
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -649,23 +668,12 @@ export default function Bracket() {
                       <span className="text-base font-black text-blue-500 uppercase tracking-wider">NFC</span>
                     </div>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-4 flex flex-col items-center">
                     {nfcDivisional.map(m => (
-                      <MatchupCard key={m.id} matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                      <div key={m.id} className="w-[220px]">
+                        <MatchupCard matchup={m} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                      </div>
                     ))}
-                  </div>
-                  <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-blue-500/30 flex items-center justify-center">
-                        <span className="font-black text-sm text-blue-500">1</span>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-xs text-blue-500/80 font-bold uppercase">First Round Bye</div>
-                        <div className="text-base font-black text-white uppercase">
-                          {nfcByeTeam ? `${nfcByeTeam.city} ${nfcByeTeam.name}` : 'TBD'}
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -691,9 +699,13 @@ export default function Bracket() {
                       <span className="text-sm font-black text-red-500 uppercase tracking-wider">AFC Championship</span>
                     </div>
                   </div>
-                  <MatchupCard matchup={afcChampionship} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                  <div className="flex justify-center">
+                    <div className="w-[220px]">
+                      <MatchupCard matchup={afcChampionship} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                    </div>
+                  </div>
                   {afcChampionship.winner && (
-                    <div className="mt-4 text-center p-4 bg-red-500/10 rounded-lg border border-red-500/30">
+                    <div className="mt-4 text-center p-4 bg-red-500/10 rounded-lg border border-red-500/30 w-[220px] mx-auto">
                       <div className="text-xs text-red-500 font-bold uppercase mb-1">AFC Champion</div>
                       <div className="text-xl font-black text-white">{afcChampionship.winner.name}</div>
                     </div>
@@ -705,9 +717,13 @@ export default function Bracket() {
                       <span className="text-sm font-black text-blue-500 uppercase tracking-wider">NFC Championship</span>
                     </div>
                   </div>
-                  <MatchupCard matchup={nfcChampionship} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                  <div className="flex justify-center">
+                    <div className="w-[220px]">
+                      <MatchupCard matchup={nfcChampionship} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                    </div>
+                  </div>
                   {nfcChampionship.winner && (
-                    <div className="mt-4 text-center p-4 bg-blue-500/10 rounded-lg border border-blue-500/30">
+                    <div className="mt-4 text-center p-4 bg-blue-500/10 rounded-lg border border-blue-500/30 w-[220px] mx-auto">
                       <div className="text-xs text-blue-500 font-bold uppercase mb-1">NFC Champion</div>
                       <div className="text-xl font-black text-white">{nfcChampionship.winner.name}</div>
                     </div>
@@ -737,20 +753,22 @@ export default function Bracket() {
                 <h2 className="text-4xl font-black text-yellow-500 uppercase mb-2">Super Bowl LX</h2>
                 <p className="text-sm text-slate-400">Championship Game</p>
               </div>
-              <div className="max-w-md mx-auto">
-                <MatchupCard matchup={superBowl} onPickWinner={handlePickWinner} isLocked={isLocked} />
-                {superBowl.winner && (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="mt-8 text-center p-8 bg-gradient-to-b from-yellow-500/20 to-yellow-600/10 rounded-2xl border-2 border-yellow-500/40"
-                  >
-                    <Trophy className="w-20 h-20 text-yellow-500 mx-auto mb-4" />
-                    <div className="text-yellow-500 font-black text-sm uppercase tracking-widest mb-2">Super Bowl Champion</div>
-                    <div className="text-4xl font-black text-white italic uppercase">{superBowl.winner.name}</div>
-                  </motion.div>
-                )}
+              <div className="flex justify-center">
+                <div className="w-[220px]">
+                  <MatchupCard matchup={superBowl} onPickWinner={handlePickWinner} isLocked={isLocked} />
+                </div>
               </div>
+              {superBowl.winner && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="mt-8 text-center p-8 bg-gradient-to-b from-yellow-500/20 to-yellow-600/10 rounded-2xl border-2 border-yellow-500/40 max-w-md mx-auto"
+                >
+                  <Trophy className="w-20 h-20 text-yellow-500 mx-auto mb-4" />
+                  <div className="text-yellow-500 font-black text-sm uppercase tracking-widest mb-2">Super Bowl Champion</div>
+                  <div className="text-4xl font-black text-white italic uppercase">{superBowl.winner.name}</div>
+                </motion.div>
+              )}
             </div>
 
             {/* Mobile Submit Button */}

@@ -56,6 +56,7 @@ export const AuthProvider = ({ children }) => {
     if (!auth) throw new Error('Firebase not configured');
     const result = await signInWithEmailAndPassword(auth, email, password);
     await result.user.reload();
+    await result.user.getIdToken(true);
     return result;
   };
   

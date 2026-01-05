@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, setDoc, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../AuthContext';
-import { fetchPlayoffTeams } from '../services/nflData';
+import { fetchPlayoffGames } from '../services/playoffGames';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, ArrowLeft, Lock, Unlock, BarChart3, Settings } from 'lucide-react';
 import MatchupCard from './MatchupCard';
@@ -13,7 +13,7 @@ export default function Bracket() {
   const { roomId } = useParams();
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [teams, setTeams] = useState([]);
+  const [playoffGames, setPlayoffGames] = useState(null);
   const [bracket, setBracket] = useState(null);
   const [loading, setLoading] = useState(true);
   const [roomCreator, setRoomCreator] = useState(null);
@@ -24,8 +24,8 @@ export default function Bracket() {
   }, [roomId, user]);
 
   const loadData = async () => {
-    const teamsData = await fetchPlayoffTeams();
-    setTeams(teamsData);
+    const gamesData = await fetchPlayoffGames();
+    setPlayoffGames(gamesData);
     await loadBracket();
     await loadRoomCreator();
     await loadGameResults();
@@ -134,7 +134,7 @@ export default function Bracket() {
     </div>
   );
 
-  if (loading) {
+  if (loading || !playoffGames) {
     return (
       <div className="h-screen bg-[#020617] flex items-center justify-center">
         <div className="text-white text-xl">Loading bracket...</div>
@@ -142,95 +142,17 @@ export default function Bracket() {
     );
   }
 
-  const afcTeams = teams.filter(t => t.conference === 'AFC');
-  const nfcTeams = teams.filter(t => t.conference === 'NFC');
   const isLocked = bracket?.submitted === true;
   const isRoomCreator = roomCreator === user.uid;
 
-  // Helper to get team by ID
-  const getTeam = (teamId) => teams.find(t => t.id === teamId);
-  const getPick = (matchId) => bracket?.picks?.[matchId] ? getTeam(bracket.picks[matchId]) : null;
-
-  // Create Wild Card matchups
-  const afcWildCard = [
-    { id: 'afc-wc-0', team1: afcTeams[1], team2: afcTeams[6], winner: getPick('afc-wc-0'), result: gameResults['afc-wc-0'] },
-    { id: 'afc-wc-1', team1: afcTeams[2], team2: afcTeams[5], winner: getPick('afc-wc-1'), result: gameResults['afc-wc-1'] },
-    { id: 'afc-wc-2', team1: afcTeams[3], team2: afcTeams[4], winner: getPick('afc-wc-2'), result: gameResults['afc-wc-2'] },
-  ];
-
-  const nfcWildCard = [
-    { id: 'nfc-wc-0', team1: nfcTeams[1], team2: nfcTeams[6], winner: getPick('nfc-wc-0'), result: gameResults['nfc-wc-0'] },
-    { id: 'nfc-wc-1', team1: nfcTeams[2], team2: nfcTeams[5], winner: getPick('nfc-wc-1'), result: gameResults['nfc-wc-1'] },
-    { id: 'nfc-wc-2', team1: nfcTeams[3], team2: nfcTeams[4], winner: getPick('nfc-wc-2'), result: gameResults['nfc-wc-2'] },
-  ];
-
-  // Get wild card winners sorted by seed (for display purposes)
-  const afcWCWinners = afcWildCard.map(m => m.winner).filter(Boolean).sort((a, b) => a.seed - b.seed);
-  const nfcWCWinners = nfcWildCard.map(m => m.winner).filter(Boolean).sort((a, b) => a.seed - b.seed);
-
-  // Create Divisional matchups - show picked teams or placeholders
-  const afcDivisional = [
-    { 
-      id: 'afc-div-0', 
-      team1: afcTeams[0], 
-      team2: afcWCWinners[2] || null,
-      winner: getPick('afc-div-0'),
-      result: gameResults['afc-div-0']
-    },
-    { 
-      id: 'afc-div-1', 
-      team1: afcWCWinners[0] || null,
-      team2: afcWCWinners[1] || null,
-      winner: getPick('afc-div-1'),
-      result: gameResults['afc-div-1']
-    },
-  ];
-
-  const nfcDivisional = [
-    { 
-      id: 'nfc-div-0', 
-      team1: nfcTeams[0], 
-      team2: nfcWCWinners[2] || null,
-      winner: getPick('nfc-div-0'),
-      result: gameResults['nfc-div-0']
-    },
-    { 
-      id: 'nfc-div-1', 
-      team1: nfcWCWinners[0] || null, 
-      team2: nfcWCWinners[1] || null,
-      winner: getPick('nfc-div-1'),
-      result: gameResults['nfc-div-1']
-    },
-  ];
-
-  // Create Conference Championship matchups
-  const afcDivWinners = afcDivisional.map(m => m.winner).filter(Boolean);
-  const nfcDivWinners = nfcDivisional.map(m => m.winner).filter(Boolean);
-
-  const afcChampionship = {
-    id: 'afc-conf',
-    team1: afcDivWinners[0] || null,
-    team2: afcDivWinners[1] || null,
-    winner: getPick('afc-conf'),
-    result: gameResults['afc-conf']
-  };
-
-  const nfcChampionship = {
-    id: 'nfc-conf',
-    team1: nfcDivWinners[0] || null,
-    team2: nfcDivWinners[1] || null,
-    winner: getPick('nfc-conf'),
-    result: gameResults['nfc-conf']
-  };
-
-  // Super Bowl
-  const superBowl = {
-    id: 'super-bowl',
-    team1: afcChampionship.winner || null,
-    team2: nfcChampionship.winner || null,
-    winner: getPick('super-bowl'),
-    result: gameResults['super-bowl']
-  };
+  // Get games by round and conference
+  const afcWildCard = playoffGames.wildCard.filter(g => g.conference === 'AFC');
+  const nfcWildCard = playoffGames.wildCard.filter(g => g.conference === 'NFC');
+  const afcDivisional = playoffGames.divisional.filter(g => g.conference === 'AFC');
+  const nfcDivisional = playoffGames.divisional.filter(g => g.conference === 'NFC');
+  const afcChampionship = playoffGames.conference.find(g => g.conference === 'AFC');
+  const nfcChampionship = playoffGames.conference.find(g => g.conference === 'NFC');
+  const superBowl = playoffGames.superBowl[0] || { team1: null, team2: null, winner: null };
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-[#020617] text-slate-100 relative selection:bg-blue-500/30">
@@ -321,7 +243,7 @@ export default function Bracket() {
                 <div className="w-6 h-6 lg:w-7 lg:h-7 rounded bg-slate-800 flex items-center justify-center font-bold text-[10px] lg:text-[11px] text-white/50">1</div>
                 <div className="text-left overflow-hidden">
                   <div className="text-[8px] lg:text-[9px] font-black text-slate-500 uppercase tracking-widest">AFC BYE</div>
-                  <div className="font-bold text-[12px] lg:text-[14px] text-slate-400 truncate uppercase">{afcTeams[0]?.name}</div>
+                  <div className="font-bold text-[12px] lg:text-[14px] text-slate-400 truncate uppercase">TBD</div>
                 </div>
               </div>
             </div>
@@ -414,7 +336,7 @@ export default function Bracket() {
                 <div className="w-6 h-6 lg:w-7 lg:h-7 rounded bg-slate-800 flex items-center justify-center font-bold text-[10px] lg:text-[11px] text-white/50">1</div>
                 <div className="text-left overflow-hidden">
                   <div className="text-[8px] lg:text-[9px] font-black text-slate-500 uppercase tracking-widest">NFC BYE</div>
-                  <div className="font-bold text-[12px] lg:text-[14px] text-slate-400 truncate uppercase">{nfcTeams[0]?.name}</div>
+                  <div className="font-bold text-[12px] lg:text-[14px] text-slate-400 truncate uppercase">TBD</div>
                 </div>
               </div>
             </div>
@@ -505,7 +427,7 @@ export default function Bracket() {
                       </div>
                       <div className="text-center">
                         <div className="text-xs text-red-500/80 font-bold uppercase">First Round Bye</div>
-                        <div className="text-base font-black text-white uppercase">{afcTeams[0]?.name}</div>
+                        <div className="text-base font-black text-white uppercase">TBD</div>
                       </div>
                     </div>
                   </div>
@@ -528,7 +450,7 @@ export default function Bracket() {
                       </div>
                       <div className="text-center">
                         <div className="text-xs text-blue-500/80 font-bold uppercase">First Round Bye</div>
-                        <div className="text-base font-black text-white uppercase">{nfcTeams[0]?.name}</div>
+                        <div className="text-base font-black text-white uppercase">TBD</div>
                       </div>
                     </div>
                   </div>

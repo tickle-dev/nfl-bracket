@@ -1,7 +1,18 @@
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function MatchupCard({ matchup, onPickWinner, isLocked = false }) {
-  const { team1, team2, winner, result } = matchup;
+  const { team1, team2, winner, result, statusDetail, homeScore, awayScore, isInProgress, isCompleted } = matchup;
+
+  const getScoreDisplay = () => {
+    if (!team1 || !team2) return 'Game Not Started';
+    if (isCompleted && homeScore !== null && awayScore !== null) {
+      return `Final: ${team1.isHome ? homeScore : awayScore} - ${team1.isHome ? awayScore : homeScore}`;
+    }
+    if (isInProgress && homeScore !== null && awayScore !== null) {
+      return `Live: ${team1.isHome ? homeScore : awayScore} - ${team1.isHome ? awayScore : homeScore}`;
+    }
+    return statusDetail || 'Game Not Started';
+  };
 
   const renderTeam = (team, isSecond) => {
     if (!team) {
@@ -77,6 +88,17 @@ export default function MatchupCard({ matchup, onPickWinner, isLocked = false })
 
   return (
     <div className={`w-40 lg:w-48 flex-shrink-0 relative group transition-all duration-500 ${!team1 || !team2 ? 'opacity-50' : 'opacity-100'}`}>
+      {/* Score/Status Display */}
+      <div className="text-center mb-1">
+        <span className={`text-[8px] lg:text-[9px] font-bold uppercase tracking-wider ${
+          isCompleted ? 'text-green-400' : 
+          isInProgress ? 'text-yellow-400' : 
+          'text-slate-500'
+        }`}>
+          {getScoreDisplay()}
+        </span>
+      </div>
+      
       <div className="shadow-2xl rounded-xl overflow-hidden flex flex-col border border-white/5 bg-slate-900/20 backdrop-blur-sm">
         {renderTeam(team1, false)}
         {renderTeam(team2, true)}

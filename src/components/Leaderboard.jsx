@@ -59,12 +59,26 @@ export default function Leaderboard() {
             userId: bracketData.userId,
             username: userData.username || userData.email || 'Unknown User',
             points,
+            tiebreakerPoints: bracketData.tiebreakerPoints || 0,
             submittedAt: bracketData.submittedAt
           };
         })
       );
 
-      leaderboardData.sort((a, b) => b.points - a.points);
+      // Sort by points, then by tiebreaker (closest to actual total)
+      leaderboardData.sort((a, b) => {
+        if (b.points !== a.points) {
+          return b.points - a.points;
+        }
+        // If tied, use tiebreaker - get actual Super Bowl total from results
+        const superBowlResult = results['super-bowl'];
+        if (superBowlResult && superBowlResult.totalPoints) {
+          const aDiff = Math.abs(a.tiebreakerPoints - superBowlResult.totalPoints);
+          const bDiff = Math.abs(b.tiebreakerPoints - superBowlResult.totalPoints);
+          return aDiff - bDiff; // Closer is better
+        }
+        return 0;
+      });
       setLeaderboard(leaderboardData);
     } catch (error) {
       console.error('Error loading leaderboard:', error);
@@ -192,6 +206,9 @@ export default function Leaderboard() {
                     <div className="text-right">
                       <div className="text-3xl font-black text-yellow-600/90">{entry.points}</div>
                       <div className="text-xs text-slate-500 uppercase tracking-wider">Points</div>
+                      {entry.tiebreakerPoints > 0 && (
+                        <div className="text-xs text-slate-400 mt-1">TB: {entry.tiebreakerPoints}</div>
+                      )}
                     </div>
                   </div>
                 </div>

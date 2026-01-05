@@ -105,6 +105,17 @@ export default function GameResults() {
     saveResults(newResults);
   };
 
+  const setSuperBowlTotal = (totalPoints) => {
+    const newResults = { 
+      ...results, 
+      'super-bowl': {
+        ...results['super-bowl'],
+        totalPoints: parseInt(totalPoints) || 0
+      }
+    };
+    saveResults(newResults);
+  };
+
   const clearWinner = (matchId) => {
     const newResults = { ...results };
     delete newResults[matchId];
@@ -279,6 +290,23 @@ export default function GameResults() {
         <div className="mt-8 max-w-md mx-auto">
           <h2 className="text-2xl font-black text-yellow-600/90 uppercase tracking-wider mb-4 text-center">Super Bowl LX</h2>
           {renderMatchup(superBowl)}
+          
+          {/* Total Points Input */}
+          <div className="mt-4 bg-slate-900/40 backdrop-blur-xl border border-yellow-500/30 rounded-xl p-4">
+            <label className="block text-sm font-bold text-yellow-500 uppercase tracking-wider mb-2">
+              Total Points Scored (for tiebreaker)
+            </label>
+            <input
+              type="number"
+              min="0"
+              max="150"
+              value={results['super-bowl']?.totalPoints || ''}
+              onChange={(e) => setSuperBowlTotal(e.target.value)}
+              placeholder="Enter combined final score"
+              className="w-full px-4 py-2 bg-slate-800/50 border border-yellow-500/30 rounded-lg text-white text-center font-bold focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+            />
+            <p className="text-xs text-slate-400 text-center mt-2">Used to break ties in the leaderboard</p>
+          </div>
         </div>
       </div>
     </div>

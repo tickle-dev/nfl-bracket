@@ -71,14 +71,15 @@ export default function Bracket() {
     }
   };
 
-  const saveBracket = async (picks, submitted = false) => {
+  const saveBracket = async (picks, submitted = false, tiebreakerPoints = null) => {
     const bracketRef = doc(db, 'brackets', `${roomId}_${user.uid}`);
     const data = { 
       userId: user.uid, 
       roomId, 
       picks, 
       submitted,
-      submittedAt: submitted ? new Date() : null 
+      submittedAt: submitted ? new Date() : null,
+      tiebreakerPoints: tiebreakerPoints !== null ? tiebreakerPoints : (bracket?.tiebreakerPoints || null)
     };
     await setDoc(bracketRef, data);
     setBracket(data);
@@ -89,7 +90,12 @@ export default function Bracket() {
     if (!team || !team.id) return;
     
     const newPicks = { ...(bracket?.picks || {}), [matchupId]: team.id };
-    saveBracket(newPicks, false);
+    saveBracket(newPicks, false, null);
+  };
+
+  const handleTiebreakerChange = (points) => {
+    if (bracket?.submitted) return;
+    saveBracket(bracket?.picks || {}, false, points);
   };
 
   const handleSubmitBracket = async () => {
@@ -121,7 +127,13 @@ export default function Bracket() {
       return;
     }
     
-    await saveBracket(bracket.picks, true);
+    // Check if tiebreaker is set
+    if (!bracket.tiebreakerPoints || bracket.tiebreakerPoints < 0) {
+      alert('Please enter your tiebreaker prediction for total points in the Super Bowl!');
+      return;
+    }
+    
+    await saveBracket(bracket.picks, true, bracket.tiebreakerPoints);
   };
 
   const handleResetAllBrackets = async () => {
@@ -490,6 +502,24 @@ export default function Bracket() {
               <MatchupCard matchup={superBowl} onPickWinner={handlePickWinner} isLocked={isLocked} />
             </div>
 
+            {/* Tiebreaker Input */}
+            <div className="mt-4 w-48">
+              <label className="block text-center text-[9px] font-bold uppercase tracking-wider text-yellow-500/80 mb-2">
+                Tiebreaker: Total Points
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="150"
+                value={bracket?.tiebreakerPoints || ''}
+                onChange={(e) => handleTiebreakerChange(parseInt(e.target.value) || 0)}
+                disabled={isLocked}
+                placeholder="Enter total"
+                className="w-full px-3 py-2 bg-slate-800/50 border border-yellow-500/30 rounded-lg text-white text-center font-bold focus:ring-2 focus:ring-yellow-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+              <p className="text-[8px] text-slate-500 text-center mt-1">Combined score prediction</p>
+            </div>
+
             <div className="h-[80px] lg:h-[100px] mt-4 lg:mt-6 flex flex-col items-center justify-center">
               <AnimatePresence mode="wait">
                 {superBowl.winner ? (
@@ -758,6 +788,25 @@ export default function Bracket() {
                   <MatchupCard matchup={superBowl} onPickWinner={handlePickWinner} isLocked={isLocked} />
                 </div>
               </div>
+              
+              {/* Tiebreaker Input */}
+              <div className="mt-6 max-w-xs mx-auto">
+                <label className="block text-center text-sm font-bold uppercase tracking-wider text-yellow-500 mb-3">
+                  Tiebreaker: Total Points Scored
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="150"
+                  value={bracket?.tiebreakerPoints || ''}
+                  onChange={(e) => handleTiebreakerChange(parseInt(e.target.value) || 0)}
+                  disabled={isLocked}
+                  placeholder="Enter total points"
+                  className="w-full px-4 py-3 bg-slate-800/50 border-2 border-yellow-500/30 rounded-lg text-white text-center text-lg font-bold focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+                <p className="text-xs text-slate-400 text-center mt-2">Predict the combined final score (used for tiebreaker)</p>
+              </div>
+              
               {superBowl.winner && (
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.9 }}

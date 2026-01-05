@@ -227,6 +227,14 @@ export default function Tutorial({ isOpen, onClose }) {
               </p>
             </div>
           </div>
+          <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+            <h4 className="text-orange-300 font-bold mb-2 flex items-center gap-2">
+              <span>🎯</span> Tiebreaker:
+            </h4>
+            <p className="text-orange-200 text-sm">
+              If multiple players have the same points, the winner is determined by who predicted closest to the <strong>total points scored in the Super Bowl</strong>. You must enter your tiebreaker prediction when filling out your bracket!
+            </p>
+          </div>
         </div>
       )
     },

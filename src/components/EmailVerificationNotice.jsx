@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
 import { sendEmailVerification } from 'firebase/auth';
+import { auth } from '../firebase';
 import { Mail, AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function EmailVerificationNotice() {
@@ -13,7 +14,8 @@ export default function EmailVerificationNotice() {
     const interval = setInterval(async () => {
       if (user) {
         await user.reload();
-        if (user.emailVerified) {
+        const refreshedUser = auth.currentUser;
+        if (refreshedUser && refreshedUser.emailVerified) {
           window.location.reload();
         }
       }
@@ -26,7 +28,8 @@ export default function EmailVerificationNotice() {
     setMessage('');
     try {
       await user.reload();
-      if (user.emailVerified) {
+      const refreshedUser = auth.currentUser;
+      if (refreshedUser && refreshedUser.emailVerified) {
         window.location.reload();
       } else {
         setMessage('Email not verified yet. Please check your inbox and spam folder.');

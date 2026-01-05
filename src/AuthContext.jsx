@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, updateProfile, sendEmailVerification } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [username, setUsername] = useState(null);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
+  const authStateResolvers = useRef([]);
 
   useEffect(() => {
     if (!auth) {
@@ -48,17 +49,25 @@ export const AuthProvider = ({ children }) => {
       }
       
       setLoading(false);
+      
+      // Resolve any pending auth state promises
+      authStateResolvers.current.forEach(resolve => resolve());
+      authStateResolvers.current = [];
     });
     return unsubscribe;
   }, []);
 
   const login = async (email, password) => {
     if (!auth) throw new Error('Firebase not configured');
-    setLoading(true);
     const result = await signInWithEmailAndPassword(auth, email, password);
     await result.user.reload();
     await result.user.getIdToken(true);
-    // Don't set loading to false - let onAuthStateChanged handle it
+    
+    // Wait for onAuthStateChanged to complete
+    await new Promise(resolve => {
+      authStateResolvers.current.push(resolve);
+    });
+    
     return result;
   };
   
@@ -83,7 +92,6 @@ export const AuthProvider = ({ children }) => {
   
   const loginWithGoogle = async () => {
     if (!auth) throw new Error('Firebase not configured');
-    setLoading(true);
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
     
@@ -99,7 +107,12 @@ export const AuthProvider = ({ children }) => {
         hasSeenTutorial: false
       });
     }
-    // Don't set loading to false - let onAuthStateChanged handle it
+    
+    // Wait for onAuthStateChanged to complete
+    await new Promise(resolve => {
+      authStateResolvers.current.push(resolve);
+    });
+    
     return result;
   };
   

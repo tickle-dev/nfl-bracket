@@ -7,10 +7,12 @@ import { Mail, AlertCircle, RefreshCw } from 'lucide-react';
 export default function EmailVerificationNotice() {
   const { user, logout } = useAuth();
   const [resending, setResending] = useState(false);
-  const [checking, setChecking] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
+    let interval;
+    
     // Check immediately on mount
     const checkImmediately = async () => {
       if (user) {
@@ -18,22 +20,27 @@ export default function EmailVerificationNotice() {
         const refreshedUser = auth.currentUser;
         if (refreshedUser && refreshedUser.emailVerified) {
           window.location.reload();
+        } else {
+          setChecking(false);
+          
+          // Only start interval if not verified
+          interval = setInterval(async () => {
+            if (user) {
+              await user.reload();
+              const refreshedUser = auth.currentUser;
+              if (refreshedUser && refreshedUser.emailVerified) {
+                window.location.reload();
+              }
+            }
+          }, 1000);
         }
       }
     };
     checkImmediately();
     
-    // Then check every second
-    const interval = setInterval(async () => {
-      if (user) {
-        await user.reload();
-        const refreshedUser = auth.currentUser;
-        if (refreshedUser && refreshedUser.emailVerified) {
-          window.location.reload();
-        }
-      }
-    }, 1000);
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [user]);
 
   const checkVerification = async () => {
@@ -67,7 +74,13 @@ export default function EmailVerificationNotice() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-900 via-red-800 to-orange-900 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+      {checking ? (
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-white text-lg">Checking verification status...</p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <div className="flex items-center justify-center mb-6">
           <div className="bg-orange-100 p-4 rounded-full">
             <Mail className="w-12 h-12 text-orange-600" />
@@ -121,6 +134,7 @@ export default function EmailVerificationNotice() {
           Sign Out
         </button>
       </div>
+      )}
     </div>
   );
 }

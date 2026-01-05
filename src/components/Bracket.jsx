@@ -22,13 +22,21 @@ export default function Bracket() {
   useEffect(() => {
     loadData();
     
-    // Auto-refresh every 30 seconds
+    // Auto-refresh only game data, not bracket picks
     const interval = setInterval(() => {
-      loadData();
+      refreshGameData();
     }, 30000);
     
     return () => clearInterval(interval);
   }, [roomId, user]);
+
+  const refreshGameData = async () => {
+    const gamesData = await fetchPlayoffGames();
+    if (gamesData) {
+      setPlayoffGames(gamesData);
+    }
+    await loadGameResults();
+  };
 
   const loadData = async () => {
     const gamesData = await fetchPlayoffGames();
@@ -78,6 +86,8 @@ export default function Bracket() {
 
   const handlePickWinner = (matchupId, team) => {
     if (bracket?.submitted) return;
+    if (!team || !team.id) return;
+    
     const newPicks = { ...(bracket?.picks || {}), [matchupId]: team.id };
     saveBracket(newPicks, false);
   };
@@ -87,6 +97,30 @@ export default function Bracket() {
       alert('Please make at least one pick before submitting');
       return;
     }
+    
+    // Collect all required matchup IDs
+    const requiredMatchups = [
+      // Wild Card (6 games total)
+      ...afcWildCard.map(g => g.id),
+      ...nfcWildCard.map(g => g.id),
+      // Divisional (4 games total)
+      ...afcDivisional.map(g => g.id),
+      ...nfcDivisional.map(g => g.id),
+      // Conference Championships (2 games)
+      afcChampionship.id,
+      nfcChampionship.id,
+      // Super Bowl (1 game)
+      superBowl.id
+    ];
+    
+    // Check which matchups are missing picks
+    const missingPicks = requiredMatchups.filter(matchupId => !bracket.picks[matchupId]);
+    
+    if (missingPicks.length > 0) {
+      alert(`Please complete your bracket! You're missing ${missingPicks.length} pick(s).\n\nYou must pick a winner for every game in all rounds including the Super Bowl.`);
+      return;
+    }
+    
     await saveBracket(bracket.picks, true);
   };
 
@@ -154,14 +188,176 @@ export default function Bracket() {
   const isLocked = bracket?.submitted === true;
   const isRoomCreator = roomCreator === user.uid;
 
-  // Get games by round and conference with fallbacks
-  const afcWildCard = playoffGames?.wildCard?.filter(g => g.conference === 'AFC') || [];
-  const nfcWildCard = playoffGames?.wildCard?.filter(g => g.conference === 'NFC') || [];
-  const afcDivisional = playoffGames?.divisional?.filter(g => g.conference === 'AFC') || [];
-  const nfcDivisional = playoffGames?.divisional?.filter(g => g.conference === 'NFC') || [];
-  const afcChampionship = playoffGames?.conference?.find(g => g.conference === 'AFC') || { team1: null, team2: null, winner: null, conference: 'AFC' };
-  const nfcChampionship = playoffGames?.conference?.find(g => g.conference === 'NFC') || { team1: null, team2: null, winner: null, conference: 'NFC' };
-  const superBowl = playoffGames?.superBowl?.[0] || { team1: null, team2: null, winner: null, conference: 'SB' };
+  // Helper to get user's pick for a matchup
+  const getUserPick = (matchupId, game) => {
+    const pickedTeamId = bracket?.picks?.[matchupId];
+    if (!pickedTeamId) return null;
+    
+    // Check if picked team matches either team in the game
+    if (game?.team1?.id === pickedTeamId) return game.team1;
+    if (game?.team2?.id === pickedTeamId) return game.team2;
+    
+    return null;
+  };
+
+  // Helper to add user picks to game data and include actual ESPN matchup + winner
+  const addPickToGame = (game) => {
+    if (!game || !game.id) return game;
+    
+    // Get user's pick
+    const userWinner = getUserPick(game.id, game);
+    
+    // Get actual ESPN winner (if game is completed)
+    let espnWinnerId = null;
+    if (game.isCompleted && game.winner) {
+      espnWinnerId = game.winner; // This is the team ID from ESPN
+    }
+    
+    // Store actual ESPN teams and winner separately
+    return {
+      ...game,
+      actualTeam1: game.team1, // Actual ESPN team
+      actualTeam2: game.team2, // Actual ESPN team
+      espnWinner: espnWinnerId, // Actual ESPN winner ID
+      winner: userWinner // User's pick
+    };
+  };
+
+  // Get games by round and conference with fallbacks and user picks
+  const afcWildCard = (playoffGames?.wildCard?.filter(g => g?.conference === 'AFC') || []).map(addPickToGame);
+  const nfcWildCard = (playoffGames?.wildCard?.filter(g => g?.conference === 'NFC') || []).map(addPickToGame);
+  
+  // Build divisional matchups from Wild Card winners (NFL re-seeding rules)
+  const buildDivisionalMatchups = (wildCardGames, conference) => {
+    const espnGames = playoffGames?.divisional?.filter(g => g?.conference === conference) || [];
+    
+    // If ESPN has real matchups (not TBD), use those
+    if (espnGames.length > 0 && espnGames[0].team1 && espnGames[0].team2) {
+      return espnGames.map(addPickToGame);
+    }
+    
+    // Otherwise, build from user's Wild Card picks
+    const wcWinners = wildCardGames
+      .map(g => g.winner)
+      .filter(Boolean)
+      .sort((a, b) => (a.seed || 99) - (b.seed || 99));
+    
+    // Hardcoded #1 seeds
+    const byeTeam = conference === 'AFC' ? {
+      id: '7',
+      name: 'Broncos',
+      city: 'Denver',
+      abbreviation: 'DEN',
+      seed: 1,
+      conference: 'AFC',
+      color: '#FB4F14'
+    } : {
+      id: '26',
+      name: 'Seahawks',
+      city: 'Seattle',
+      abbreviation: 'SEA',
+      seed: 1,
+      conference: 'NFC',
+      color: '#002244'
+    };
+    
+    // NFL Re-seeding: #1 plays lowest seed, next matchup is remaining two teams
+    const game1 = {
+      id: `${conference.toLowerCase()}-div-0`,
+      team1: byeTeam,
+      team2: wcWinners[2] || null, // Lowest seed
+      conference,
+      isInProgress: false,
+      isCompleted: false,
+      statusDetail: 'Game Not Started'
+    };
+    
+    const game2 = {
+      id: `${conference.toLowerCase()}-div-1`,
+      team1: wcWinners[0] || null, // Highest WC winner
+      team2: wcWinners[1] || null, // Middle WC winner
+      conference,
+      isInProgress: false,
+      isCompleted: false,
+      statusDetail: 'Game Not Started'
+    };
+    
+    return [addPickToGame(game1), addPickToGame(game2)];
+  };
+  
+  const afcDivisional = buildDivisionalMatchups(afcWildCard, 'AFC');
+  const nfcDivisional = buildDivisionalMatchups(nfcWildCard, 'NFC');
+  
+  // Extract #1 seeds (bye teams) from divisional matchups
+  const afcByeTeam = afcDivisional[0]?.team1 || null;
+  const nfcByeTeam = nfcDivisional[0]?.team1 || null;
+  
+  // Build conference championships from divisional winners
+  const buildConferenceChampionship = (divisionalGames, conference) => {
+    const espnGame = playoffGames?.conference?.find(g => g?.conference === conference);
+    
+    // If ESPN has real matchup (not TBD), use it
+    if (espnGame && espnGame.team1 && espnGame.team2) {
+      return addPickToGame(espnGame);
+    }
+    
+    // Otherwise, build from user's divisional picks
+    const divWinners = divisionalGames.map(g => g.winner).filter(Boolean);
+    
+    const game = {
+      id: `${conference.toLowerCase()}-conf`,
+      team1: divWinners[0] || null,
+      team2: divWinners[1] || null,
+      conference,
+      isInProgress: false,
+      isCompleted: false,
+      statusDetail: 'Game Not Started'
+    };
+    
+    return addPickToGame(game);
+  };
+  
+  const afcChampionship = buildConferenceChampionship(afcDivisional, 'AFC');
+  const nfcChampionship = buildConferenceChampionship(nfcDivisional, 'NFC');
+  
+  // Build Super Bowl from conference champions
+  const espnSuperBowl = playoffGames?.superBowl?.[0];
+  
+  // Check if ESPN has REAL teams (not placeholder AFC/NFC teams with IDs 31/32)
+  const hasEspnSuperBowl = espnSuperBowl && 
+                           espnSuperBowl.team1 && 
+                           espnSuperBowl.team2 &&
+                           espnSuperBowl.team1.id !== '31' && 
+                           espnSuperBowl.team1.id !== '32' &&
+                           espnSuperBowl.team2.id !== '31' && 
+                           espnSuperBowl.team2.id !== '32';
+  
+  // Get conference winners
+  const afcWinner = afcChampionship?.winner;
+  const nfcWinner = nfcChampionship?.winner;
+  
+  console.log('AFC Championship winner:', afcWinner);
+  console.log('NFC Championship winner:', nfcWinner);
+  console.log('Has ESPN Super Bowl:', hasEspnSuperBowl);
+  
+  // Create Super Bowl matchup
+  const superBowlBase = {
+    id: 'super-bowl',
+    team1: hasEspnSuperBowl ? espnSuperBowl.team1 : afcWinner,
+    team2: hasEspnSuperBowl ? espnSuperBowl.team2 : nfcWinner,
+    conference: 'SB',
+    isInProgress: hasEspnSuperBowl ? espnSuperBowl.isInProgress : false,
+    isCompleted: hasEspnSuperBowl ? espnSuperBowl.isCompleted : false,
+    statusDetail: hasEspnSuperBowl ? espnSuperBowl.statusDetail : 'Game Not Started',
+    homeScore: hasEspnSuperBowl ? espnSuperBowl.homeScore : null,
+    awayScore: hasEspnSuperBowl ? espnSuperBowl.awayScore : null,
+    winner: null
+  };
+  
+  console.log('Super Bowl base:', superBowlBase);
+  
+  const superBowl = addPickToGame(superBowlBase);
+  console.log('Super Bowl after addPickToGame:', superBowl);
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-[#020617] text-slate-100 relative selection:bg-blue-500/30">
@@ -252,7 +448,9 @@ export default function Bracket() {
                 <div className="w-6 h-6 lg:w-7 lg:h-7 rounded bg-slate-800 flex items-center justify-center font-bold text-[10px] lg:text-[11px] text-white/50">1</div>
                 <div className="text-left overflow-hidden">
                   <div className="text-[8px] lg:text-[9px] font-black text-slate-500 uppercase tracking-widest">AFC BYE</div>
-                  <div className="font-bold text-[12px] lg:text-[14px] text-slate-400 truncate uppercase">TBD</div>
+                  <div className="font-bold text-[12px] lg:text-[14px] text-slate-400 truncate uppercase">
+                    {afcByeTeam ? `${afcByeTeam.city} ${afcByeTeam.name}` : 'TBD'}
+                  </div>
                 </div>
               </div>
             </div>
@@ -345,7 +543,9 @@ export default function Bracket() {
                 <div className="w-6 h-6 lg:w-7 lg:h-7 rounded bg-slate-800 flex items-center justify-center font-bold text-[10px] lg:text-[11px] text-white/50">1</div>
                 <div className="text-left overflow-hidden">
                   <div className="text-[8px] lg:text-[9px] font-black text-slate-500 uppercase tracking-widest">NFC BYE</div>
-                  <div className="font-bold text-[12px] lg:text-[14px] text-slate-400 truncate uppercase">TBD</div>
+                  <div className="font-bold text-[12px] lg:text-[14px] text-slate-400 truncate uppercase">
+                    {nfcByeTeam ? `${nfcByeTeam.city} ${nfcByeTeam.name}` : 'TBD'}
+                  </div>
                 </div>
               </div>
             </div>
@@ -436,7 +636,9 @@ export default function Bracket() {
                       </div>
                       <div className="text-center">
                         <div className="text-xs text-red-500/80 font-bold uppercase">First Round Bye</div>
-                        <div className="text-base font-black text-white uppercase">TBD</div>
+                        <div className="text-base font-black text-white uppercase">
+                          {afcByeTeam ? `${afcByeTeam.city} ${afcByeTeam.name}` : 'TBD'}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -459,7 +661,9 @@ export default function Bracket() {
                       </div>
                       <div className="text-center">
                         <div className="text-xs text-blue-500/80 font-bold uppercase">First Round Bye</div>
-                        <div className="text-base font-black text-white uppercase">TBD</div>
+                        <div className="text-base font-black text-white uppercase">
+                          {nfcByeTeam ? `${nfcByeTeam.city} ${nfcByeTeam.name}` : 'TBD'}
+                        </div>
                       </div>
                     </div>
                   </div>

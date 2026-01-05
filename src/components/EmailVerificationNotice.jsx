@@ -1,20 +1,51 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
 import { sendEmailVerification } from 'firebase/auth';
-import { auth } from '../firebase';
-import { Mail, AlertCircle } from 'lucide-react';
+import { Mail, AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function EmailVerificationNotice() {
   const { user, logout } = useAuth();
   const [resending, setResending] = useState(false);
+  const [checking, setChecking] = useState(false);
   const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      if (user) {
+        await user.reload();
+        if (user.emailVerified) {
+          window.location.reload();
+        }
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const checkVerification = async () => {
+    setChecking(true);
+    setMessage('');
+    try {
+      await user.reload();
+      if (user.emailVerified) {
+        window.location.reload();
+      } else {
+        setMessage('Email not verified yet. Please check your inbox and spam folder.');
+      }
+    } catch (err) {
+      setMessage('Error checking verification status.');
+    }
+    setChecking(false);
+  };
 
   const resendVerification = async () => {
     setResending(true);
     setMessage('');
     try {
-      await sendEmailVerification(auth.currentUser);
-      setMessage('Verification email sent! Please check your inbox.');
+      await sendEmailVerification(user, {
+        url: window.location.origin + '/login?verified=true',
+        handleCodeInApp: false
+      });
+      setMessage('Verification email sent! Please check your inbox and spam folder.');
     } catch (err) {
       setMessage('Error sending email. Please try again later.');
     }
@@ -40,18 +71,27 @@ export default function EmailVerificationNotice() {
             <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-blue-800">
               <p className="font-semibold mb-1">Check your email</p>
-              <p>Click the verification link in the email to activate your account. You may need to check your spam folder.</p>
+              <p>Click the verification link in the email. After verifying, you'll be redirected back here to sign in. Check your spam folder if needed.</p>
             </div>
           </div>
         </div>
 
         {message && (
           <div className={`border rounded-lg p-3 mb-4 ${
-            message.includes('sent') ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'
+            message.includes('sent') ? 'bg-green-50 border-green-200 text-green-800' : 'bg-yellow-50 border-yellow-200 text-yellow-800'
           }`}>
             <p className="text-sm">{message}</p>
           </div>
         )}
+        
+        <button
+          onClick={checkVerification}
+          disabled={checking}
+          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-semibold mb-3 disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          <RefreshCw className={`w-5 h-5 ${checking ? 'animate-spin' : ''}`} />
+          {checking ? 'Checking...' : 'I Verified My Email'}
+        </button>
         
         <button
           onClick={resendVerification}

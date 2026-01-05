@@ -202,14 +202,6 @@ export default function RoomSelection() {
             >
               <HelpCircle className="w-4 h-4" /> <span className="hidden sm:inline">Rules & Help</span><span className="sm:hidden">Help</span>
             </button>
-            {isAdmin && (
-              <button 
-                onClick={() => navigate('/admin/playoff-config')} 
-                className="flex items-center gap-1 sm:gap-2 bg-blue-500/20 backdrop-blur-sm border border-blue-400/30 text-blue-200 px-3 sm:px-6 py-2 sm:py-3 rounded-xl hover:bg-blue-500/30 transition-all duration-300 shadow-lg hover:shadow-blue-500/20 text-sm sm:text-base"
-              >
-                <Settings className="w-4 h-4" /> <span className="hidden sm:inline">Playoff Config</span>
-              </button>
-            )}
             <button 
               onClick={logout} 
               className="flex items-center gap-1 sm:gap-2 bg-red-500/20 backdrop-blur-sm border border-red-400/30 text-red-200 px-3 sm:px-6 py-2 sm:py-3 rounded-xl hover:bg-red-500/30 transition-all duration-300 shadow-lg hover:shadow-red-500/20 text-sm sm:text-base"

@@ -1,10 +1,52 @@
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function MatchupCard({ matchup, onPickWinner, isLocked = false }) {
-  const { team1, team2, winner, result, statusDetail, homeScore, awayScore, isInProgress, isCompleted, conference } = matchup;
+  // Add safety check for undefined matchup
+  if (!matchup) {
+    return (
+      <div className="w-40 lg:w-48 flex-shrink-0 opacity-50">
+        <div className="text-center mb-1">
+          <span className="text-[8px] lg:text-[9px] font-bold uppercase tracking-wider text-slate-500">
+            Game Not Started
+          </span>
+        </div>
+        <div className="shadow-2xl rounded-xl overflow-hidden flex flex-col border border-white/5 bg-slate-900/20 backdrop-blur-sm">
+          <div className="h-9 lg:h-11 flex items-center px-3 lg:px-4 bg-slate-900/30 italic text-slate-600 rounded-t-xl border-x border-t border-slate-800/40">
+            <span className="text-[8px] lg:text-[10px] font-bold uppercase tracking-[0.2em] opacity-30">TBD</span>
+          </div>
+          <div className="h-9 lg:h-11 flex items-center px-3 lg:px-4 bg-slate-900/30 italic text-slate-600 rounded-b-xl border-x border-b border-slate-800/40">
+            <span className="text-[8px] lg:text-[10px] font-bold uppercase tracking-[0.2em] opacity-30">TBD</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const { team1, team2, winner, espnWinner, statusDetail, homeScore, awayScore, isInProgress, isCompleted, conference, actualTeam1, actualTeam2 } = matchup;
+  
+  // Check if user's prediction matches actual matchup
+  const hasActualMatchup = actualTeam1 && actualTeam2;
+  const team1Matches = hasActualMatchup && team1 && (team1.id === actualTeam1.id || team1.abbreviation === actualTeam1.abbreviation);
+  const team2Matches = hasActualMatchup && team2 && (team2.id === actualTeam2.id || team2.abbreviation === actualTeam2.abbreviation);
+  const bothMatch = team1Matches && team2Matches;
+  const oneMatches = (team1Matches && !team2Matches) || (!team1Matches && team2Matches);
+  const neitherMatch = hasActualMatchup && !team1Matches && !team2Matches;
+  
+  // Determine if user's pick was correct (only for completed games with valid matchups)
+  const isPickCorrect = isCompleted && espnWinner && winner && bothMatch && winner.id === espnWinner;
+  const isPickIncorrect = isCompleted && espnWinner && winner && bothMatch && winner.id !== espnWinner;
 
   const getScoreDisplay = () => {
     if (!team1 || !team2) return 'Game Not Started';
+    
+    // Show actual matchup if it differs from prediction
+    if (hasActualMatchup && (oneMatches || neitherMatch)) {
+      const actualScore = isCompleted || isInProgress ? 
+        `${actualTeam1.abbreviation} ${actualTeam1.score || 0} - ${actualTeam2.score || 0} ${actualTeam2.abbreviation}` :
+        `Actual: ${actualTeam1.abbreviation} vs ${actualTeam2.abbreviation}`;
+      return actualScore;
+    }
+    
     if (isCompleted && homeScore !== null && awayScore !== null) {
       return `Final: ${team1.isHome ? homeScore : awayScore} - ${team1.isHome ? awayScore : homeScore}`;
     }
@@ -12,6 +54,15 @@ export default function MatchupCard({ matchup, onPickWinner, isLocked = false })
       return `Live: ${team1.isHome ? homeScore : awayScore} - ${team1.isHome ? awayScore : homeScore}`;
     }
     return statusDetail || 'Game Not Started';
+  };
+
+  const getMatchStatusColor = () => {
+    if (!hasActualMatchup) return 'text-slate-500';
+    if (neitherMatch) return 'text-red-400';
+    if (oneMatches) return 'text-yellow-400';
+    if (isCompleted) return 'text-green-400';
+    if (isInProgress) return 'text-yellow-400';
+    return 'text-slate-500';
   };
 
   const getLiveBorderClass = () => {
@@ -34,8 +85,15 @@ export default function MatchupCard({ matchup, onPickWinner, isLocked = false })
     const isWinner = winner?.id === team.id;
     const isLoser = winner && winner.id !== team.id;
     const canClick = !isLocked && team;
-    const isCorrectPick = result && winner?.id === result;
-    const isIncorrectPick = result && winner && winner.id !== result;
+    
+    // Check if this team is the actual ESPN winner (only if team exists in actual matchup)
+    const teamExistsInActualMatchup = actualTeam1?.id === team.id || actualTeam2?.id === team.id;
+    const isActualWinner = isCompleted && espnWinner && teamExistsInActualMatchup && team.id === espnWinner;
+    const isActualLoser = isCompleted && espnWinner && teamExistsInActualMatchup && team.id !== espnWinner;
+    
+    // Determine styling based on pick correctness (only if matchup is correct AND game is completed)
+    const isCorrectPick = isCompleted && isWinner && isActualWinner && bothMatch;
+    const isIncorrectPick = isCompleted && isWinner && isActualWinner === false && bothMatch && teamExistsInActualMatchup;
 
     return (
       <motion.button
@@ -45,19 +103,21 @@ export default function MatchupCard({ matchup, onPickWinner, isLocked = false })
         disabled={!canClick}
         className={`w-full h-9 lg:h-11 px-3 lg:px-4 flex items-center justify-between transition-all relative overflow-hidden
           ${isSecond ? 'rounded-b-xl' : 'rounded-t-xl'} 
-          ${isWinner && isCorrectPick ? 'bg-green-900/40 ring-1 ring-inset ring-green-400/50' : 
-            isWinner && isIncorrectPick ? 'bg-red-900/40 ring-1 ring-inset ring-red-400/50' :
-            isWinner ? 'bg-slate-800/80 ring-1 ring-inset ring-blue-400/30' : 'bg-slate-900/60'} 
-          ${isLoser ? 'opacity-20 grayscale' : 'opacity-100'}
+          ${isCorrectPick ? 'bg-green-900/40 ring-1 ring-inset ring-green-400/50' : 
+            isIncorrectPick ? 'bg-red-900/40 ring-1 ring-inset ring-red-400/50' :
+            isWinner ? 'bg-slate-800/80 ring-1 ring-inset ring-blue-400/30' : 
+            isActualWinner ? 'bg-green-900/40 ring-1 ring-inset ring-green-400/50' : 'bg-slate-900/60'} 
+          ${isLoser && !isActualWinner ? 'opacity-20 grayscale' : 'opacity-100'}
           ${!canClick ? 'cursor-not-allowed' : 'cursor-pointer'}
           border-x border-slate-800/50 ${isSecond ? 'border-b' : 'border-t'}`}
       >
-        {isWinner && (
+        {(isWinner || isActualWinner) && (
           <motion.div 
-            layoutId={`winner-glow-${matchup.id}`}
+            layoutId={`winner-glow-${matchup.id}-${team.id}`}
             className={`absolute inset-0 pointer-events-none ${
               isCorrectPick ? 'bg-gradient-to-r from-green-500/20 to-transparent' :
               isIncorrectPick ? 'bg-gradient-to-r from-red-500/20 to-transparent' :
+              isActualWinner ? 'bg-gradient-to-r from-green-500/20 to-transparent' :
               'bg-gradient-to-r from-blue-500/10 to-transparent'
             }`}
           />
@@ -77,12 +137,12 @@ export default function MatchupCard({ matchup, onPickWinner, isLocked = false })
         </div>
 
         <AnimatePresence>
-          {isWinner && (
+          {(isWinner || isActualWinner) && (
             <motion.div 
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.5 }}
-              className={isCorrectPick ? 'text-green-400' : isIncorrectPick ? 'text-red-400' : 'text-blue-400'}
+              className={isCorrectPick ? 'text-green-400' : isIncorrectPick ? 'text-red-400' : isActualWinner ? 'text-green-400' : 'text-blue-400'}
             >
               <svg viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3 lg:w-4 lg:h-4">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -96,15 +156,17 @@ export default function MatchupCard({ matchup, onPickWinner, isLocked = false })
 
   return (
     <div className={`w-40 lg:w-48 flex-shrink-0 relative group transition-all duration-500 ${!team1 || !team2 ? 'opacity-50' : 'opacity-100'}`}>
-      {/* Score/Status Display */}
+      {/* Score/Status Display with mismatch indicator */}
       <div className="text-center mb-1">
-        <span className={`text-[8px] lg:text-[9px] font-bold uppercase tracking-wider ${
-          isCompleted ? 'text-green-400' : 
-          isInProgress ? 'text-yellow-400' : 
-          'text-slate-500'
-        }`}>
+        <span className={`text-[8px] lg:text-[9px] font-bold uppercase tracking-wider ${getMatchStatusColor()}`}>
           {getScoreDisplay()}
         </span>
+        {neitherMatch && (
+          <div className="text-[7px] text-red-400 mt-0.5">⚠ Wrong matchup</div>
+        )}
+        {oneMatches && (
+          <div className="text-[7px] text-yellow-400 mt-0.5">⚠ 1 team correct</div>
+        )}
       </div>
       
       <div className={`shadow-2xl rounded-xl overflow-hidden flex flex-col border border-white/5 bg-slate-900/20 backdrop-blur-sm ${getLiveBorderClass()}`}>

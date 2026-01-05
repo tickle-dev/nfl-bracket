@@ -16,7 +16,10 @@ function PrivateRoute({ children }) {
   
   if (loading) return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
   
-  if (!user) return <Navigate to="/login" state={{ from: location }} replace />;
+  if (!user) {
+    // Preserve the full path including query parameters
+    return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />;
+  }
   
   if (!user.emailVerified) return <EmailVerificationNotice />;
   

@@ -14,7 +14,7 @@ export default function Login() {
   const { login, signup, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/rooms';
+  const from = location.state?.from || '/rooms';
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -83,7 +83,7 @@ export default function Login() {
           <div className="bg-green-500/10 border-2 border-green-500/30 rounded-lg p-6 text-center">
             <AlertCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
             <h3 className="text-lg font-bold text-green-400 mb-2">Verification Email Sent!</h3>
-            <p className="text-slate-300 mb-4">Please check your email and click the verification link to activate your account.</p>
+            <p className="text-slate-300 mb-4">Please check your email and click the verification link to activate your account. After verifying, sign in to continue.</p>
             <button
               onClick={() => {
                 setVerificationSent(false);
@@ -93,6 +93,9 @@ export default function Login() {
             >
               Back to Sign In
             </button>
+            {from !== '/rooms' && (
+              <p className="text-xs text-slate-400 mt-4">You'll be redirected to join the room after signing in.</p>
+            )}
           </div>
         ) : (
           <>

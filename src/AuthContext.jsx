@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [username, setUsername] = useState(null);
+  const [isFirstLogin, setIsFirstLogin] = useState(false);
 
   useEffect(() => {
     if (!auth) {
@@ -30,12 +31,16 @@ export const AuthProvider = ({ children }) => {
       if (user) {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
-          setUsername(userDoc.data().username);
+          const userData = userDoc.data();
+          setUsername(userData.username);
+          setIsFirstLogin(!userData.hasSeenTutorial);
         } else {
           setUsername(user.displayName || user.email.split('@')[0]);
+          setIsFirstLogin(true);
         }
       } else {
         setUsername(null);
+        setIsFirstLogin(false);
       }
       
       setLoading(false);
@@ -60,7 +65,8 @@ export const AuthProvider = ({ children }) => {
       email,
       isAdmin: isAdminUser,
       createdAt: new Date(),
-      emailVerified: false
+      emailVerified: false,
+      hasSeenTutorial: false
     });
     await sendEmailVerification(result.user);
     return result;
@@ -79,7 +85,8 @@ export const AuthProvider = ({ children }) => {
         username: result.user.displayName || result.user.email.split('@')[0],
         email: result.user.email,
         isAdmin: isAdminUser,
-        createdAt: new Date()
+        createdAt: new Date(),
+        hasSeenTutorial: false
       });
     }
     
@@ -113,8 +120,15 @@ export const AuthProvider = ({ children }) => {
     );
   }
 
+  const markTutorialSeen = async () => {
+    if (user) {
+      await setDoc(doc(db, 'users', user.uid), { hasSeenTutorial: true }, { merge: true });
+      setIsFirstLogin(false);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, signup, loginWithGoogle, logout, loading, isAdmin, username }}>
+    <AuthContext.Provider value={{ user, login, signup, loginWithGoogle, logout, loading, isAdmin, username, isFirstLogin, markTutorialSeen }}>
       {children}
     </AuthContext.Provider>
   );

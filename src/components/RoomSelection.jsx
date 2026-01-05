@@ -3,17 +3,24 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { collection, addDoc, query, where, getDocs, doc, getDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../AuthContext';
-import { Users, Plus, LogOut, Trophy, ArrowRight, Trash2, Eye, Settings, Share2 } from 'lucide-react';
+import { Users, Plus, LogOut, Trophy, ArrowRight, Trash2, Eye, Settings, Share2, HelpCircle } from 'lucide-react';
+import Tutorial from './Tutorial';
 
 export default function RoomSelection() {
   const [roomCode, setRoomCode] = useState('');
   const [userRooms, setUserRooms] = useState([]);
-  const { user, logout, isAdmin, username } = useAuth();
+  const [showTutorial, setShowTutorial] = useState(false);
+  const { user, logout, isAdmin, username, isFirstLogin, markTutorialSeen } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
     loadUserRooms();
+    
+    // Auto-show tutorial for first-time users
+    if (isFirstLogin) {
+      setShowTutorial(true);
+    }
     
     // Check if there's a join parameter in the URL
     const joinCode = searchParams.get('join');
@@ -24,7 +31,7 @@ export default function RoomSelection() {
         autoJoinRoom(joinCode.toUpperCase());
       }, 100);
     }
-  }, [user, searchParams]);
+  }, [user, searchParams, isFirstLogin]);
 
   const loadUserRooms = async () => {
     const q = query(collection(db, 'userRooms'), where('userId', '==', user.uid));
@@ -158,6 +165,11 @@ export default function RoomSelection() {
     }
   };
 
+  const handleCloseTutorial = () => {
+    setShowTutorial(false);
+    markTutorialSeen();
+  };
+
   const hasNoRooms = userRooms.length === 0;
 
   return (
@@ -182,20 +194,29 @@ export default function RoomSelection() {
               <p className="text-blue-200 text-sm">Welcome back, {username || 'User'}</p>
             </div>
           </div>
-          <button 
-            onClick={logout} 
-            className="flex items-center gap-2 bg-red-500/20 backdrop-blur-sm border border-red-400/30 text-red-200 px-6 py-3 rounded-xl hover:bg-red-500/30 transition-all duration-300 shadow-lg hover:shadow-red-500/20"
-          >
-            <LogOut className="w-4 h-4" /> Logout
-          </button>
-          {isAdmin && (
+          <div className="flex items-center gap-3">
             <button 
-              onClick={() => navigate('/admin/playoff-config')} 
+              onClick={() => setShowTutorial(true)} 
               className="flex items-center gap-2 bg-blue-500/20 backdrop-blur-sm border border-blue-400/30 text-blue-200 px-6 py-3 rounded-xl hover:bg-blue-500/30 transition-all duration-300 shadow-lg hover:shadow-blue-500/20"
+              title="How to Use"
             >
-              <Settings className="w-4 h-4" /> Playoff Config
+              <HelpCircle className="w-4 h-4" /> Tutorial
             </button>
-          )}
+            {isAdmin && (
+              <button 
+                onClick={() => navigate('/admin/playoff-config')} 
+                className="flex items-center gap-2 bg-blue-500/20 backdrop-blur-sm border border-blue-400/30 text-blue-200 px-6 py-3 rounded-xl hover:bg-blue-500/30 transition-all duration-300 shadow-lg hover:shadow-blue-500/20"
+              >
+                <Settings className="w-4 h-4" /> Playoff Config
+              </button>
+            )}
+            <button 
+              onClick={logout} 
+              className="flex items-center gap-2 bg-red-500/20 backdrop-blur-sm border border-red-400/30 text-red-200 px-6 py-3 rounded-xl hover:bg-red-500/30 transition-all duration-300 shadow-lg hover:shadow-red-500/20"
+            >
+              <LogOut className="w-4 h-4" /> Logout
+            </button>
+          </div>
         </div>
 
         {/* Main Content */}
@@ -351,6 +372,8 @@ export default function RoomSelection() {
           </div>
         )}
       </div>
+
+      <Tutorial isOpen={showTutorial} onClose={handleCloseTutorial} />
 
       <style>{`
         @keyframes blob {

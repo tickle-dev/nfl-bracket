@@ -63,10 +63,13 @@ export const AuthProvider = ({ children }) => {
     await result.user.reload();
     await result.user.getIdToken(true);
     
-    // Wait for onAuthStateChanged to complete
-    await new Promise(resolve => {
-      authStateResolvers.current.push(resolve);
-    });
+    // Wait for onAuthStateChanged to complete (with 5 second timeout)
+    await Promise.race([
+      new Promise(resolve => {
+        authStateResolvers.current.push(resolve);
+      }),
+      new Promise(resolve => setTimeout(resolve, 5000))
+    ]);
     
     return result;
   };
@@ -108,10 +111,13 @@ export const AuthProvider = ({ children }) => {
       });
     }
     
-    // Wait for onAuthStateChanged to complete
-    await new Promise(resolve => {
-      authStateResolvers.current.push(resolve);
-    });
+    // Wait for onAuthStateChanged to complete (with 5 second timeout)
+    await Promise.race([
+      new Promise(resolve => {
+        authStateResolvers.current.push(resolve);
+      }),
+      new Promise(resolve => setTimeout(resolve, 5000))
+    ]);
     
     return result;
   };

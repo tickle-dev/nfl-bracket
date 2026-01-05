@@ -21,11 +21,20 @@ export default function Bracket() {
 
   useEffect(() => {
     loadData();
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(() => {
+      loadData();
+    }, 30000);
+    
+    return () => clearInterval(interval);
   }, [roomId, user]);
 
   const loadData = async () => {
     const gamesData = await fetchPlayoffGames();
-    setPlayoffGames(gamesData);
+    if (gamesData) {
+      setPlayoffGames(gamesData);
+    }
     await loadBracket();
     await loadRoomCreator();
     await loadGameResults();

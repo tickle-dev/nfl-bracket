@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { collection, addDoc, query, where, getDocs, doc, getDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../AuthContext';
-import { Users, Plus, LogOut, Trophy, ArrowRight, Trash2, Eye, Settings } from 'lucide-react';
+import { Users, Plus, LogOut, Trophy, ArrowRight, Trash2, Eye, Settings, Share2 } from 'lucide-react';
 
 export default function RoomSelection() {
   const [roomCode, setRoomCode] = useState('');
@@ -33,6 +33,30 @@ export default function RoomSelection() {
     }
     
     setUserRooms(roomsData);
+  };
+
+  const shareRoom = (roomCode) => {
+    const shareUrl = `${window.location.origin}/rooms?join=${roomCode}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: 'Join my NFL Bracket Room',
+        text: `Join my NFL playoff bracket room with code: ${roomCode}`,
+        url: shareUrl
+      }).catch(() => {
+        copyToClipboard(shareUrl, roomCode);
+      });
+    } else {
+      copyToClipboard(shareUrl, roomCode);
+    }
+  };
+
+  const copyToClipboard = (url, roomCode) => {
+    navigator.clipboard.writeText(url).then(() => {
+      alert(`Room link copied! Share this link or use code: ${roomCode}`);
+    }).catch(() => {
+      alert(`Share this link: ${url}\n\nOr use room code: ${roomCode}`);
+    });
   };
 
   const createRoom = async () => {
@@ -264,6 +288,13 @@ export default function RoomSelection() {
                       <span className="text-white font-semibold text-lg">Room {room.roomCode}</span>
                     </button>
                     <div className="flex items-center gap-3">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); shareRoom(room.roomCode); }}
+                        className="p-2 bg-green-500/20 border border-green-500/30 rounded-lg hover:bg-green-500/30 transition text-green-400"
+                        title="Share Room"
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </button>
                       {isAdmin && (
                         <>
                           <button

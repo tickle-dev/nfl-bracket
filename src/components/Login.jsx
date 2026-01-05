@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { LogIn, Mail, AlertCircle } from 'lucide-react';
 
 export default function Login() {
@@ -13,6 +13,8 @@ export default function Login() {
   const [verificationSent, setVerificationSent] = useState(false);
   const { login, signup, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/rooms';
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -44,7 +46,7 @@ export default function Login() {
     try {
       if (isLogin) {
         await login(email, password);
-        navigate('/rooms');
+        navigate(from, { replace: true });
       } else {
         await signup(email, password, username);
         setVerificationSent(true);
@@ -58,7 +60,7 @@ export default function Login() {
     setError('');
     try {
       await loginWithGoogle();
-      navigate('/rooms');
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err.message);
     }

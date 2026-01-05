@@ -54,21 +54,11 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     if (!auth) throw new Error('Firebase not configured');
+    setLoading(true);
     const result = await signInWithEmailAndPassword(auth, email, password);
     await result.user.reload();
     await result.user.getIdToken(true);
-    
-    // Wait for onAuthStateChanged to complete with updated user
-    let attempts = 0;
-    while (attempts < 30) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      const currentUser = auth.currentUser;
-      if (currentUser && currentUser.emailVerified === result.user.emailVerified) {
-        break;
-      }
-      attempts++;
-    }
-    
+    // Don't set loading to false - let onAuthStateChanged handle it
     return result;
   };
   
@@ -93,6 +83,7 @@ export const AuthProvider = ({ children }) => {
   
   const loginWithGoogle = async () => {
     if (!auth) throw new Error('Firebase not configured');
+    setLoading(true);
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
     
@@ -108,10 +99,7 @@ export const AuthProvider = ({ children }) => {
         hasSeenTutorial: false
       });
     }
-    
-    // Wait for onAuthStateChanged to complete
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    // Don't set loading to false - let onAuthStateChanged handle it
     return result;
   };
   

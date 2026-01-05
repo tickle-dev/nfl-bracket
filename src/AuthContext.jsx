@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useRef } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, updateProfile, sendEmailVerification } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
@@ -16,7 +16,6 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [username, setUsername] = useState(null);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
-  const authStateResolvers = useRef([]);
 
   useEffect(() => {
     if (!auth) {
@@ -49,10 +48,6 @@ export const AuthProvider = ({ children }) => {
       }
       
       setLoading(false);
-      
-      // Resolve any pending auth state promises
-      authStateResolvers.current.forEach(resolve => resolve());
-      authStateResolvers.current = [];
     });
     return unsubscribe;
   }, []);
@@ -63,13 +58,17 @@ export const AuthProvider = ({ children }) => {
     await result.user.reload();
     await result.user.getIdToken(true);
     
-    // Wait for onAuthStateChanged to complete (with 5 second timeout)
-    await Promise.race([
-      new Promise(resolve => {
-        authStateResolvers.current.push(resolve);
-      }),
-      new Promise(resolve => setTimeout(resolve, 5000))
-    ]);
+    // Wait for React state to update with fresh emailVerified status
+    const startTime = Date.now();
+    while (Date.now() - startTime < 3000) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      // Check if context user state has been updated
+      if (auth.currentUser && auth.currentUser.uid === result.user.uid) {
+        // Give a bit more time for React state to propagate
+        await new Promise(resolve => setTimeout(resolve, 200));
+        break;
+      }
+    }
     
     return result;
   };
@@ -111,14 +110,7 @@ export const AuthProvider = ({ children }) => {
       });
     }
     
-    // Wait for onAuthStateChanged to complete (with 5 second timeout)
-    await Promise.race([
-      new Promise(resolve => {
-        authStateResolvers.current.push(resolve);
-      }),
-      new Promise(resolve => setTimeout(resolve, 5000))
-    ]);
-    
+    await new Promise(resolve => setTimeout(resolve, 1500));
     return result;
   };
   

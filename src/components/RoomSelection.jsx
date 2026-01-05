@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { collection, addDoc, query, where, getDocs, doc, getDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../AuthContext';
@@ -10,10 +10,21 @@ export default function RoomSelection() {
   const [userRooms, setUserRooms] = useState([]);
   const { user, logout, isAdmin, username } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     loadUserRooms();
-  }, [user]);
+    
+    // Check if there's a join parameter in the URL
+    const joinCode = searchParams.get('join');
+    if (joinCode) {
+      setRoomCode(joinCode.toUpperCase());
+      // Auto-submit after a brief delay to allow state to update
+      setTimeout(() => {
+        autoJoinRoom(joinCode.toUpperCase());
+      }, 100);
+    }
+  }, [user, searchParams]);
 
   const loadUserRooms = async () => {
     const q = query(collection(db, 'userRooms'), where('userId', '==', user.uid));
@@ -72,12 +83,30 @@ export default function RoomSelection() {
 
   const joinRoom = async (e) => {
     e.preventDefault();
-    const q = query(collection(db, 'rooms'), where('code', '==', roomCode.toUpperCase()));
+    await autoJoinRoom(roomCode);
+  };
+
+  const autoJoinRoom = async (code) => {
+    const q = query(collection(db, 'rooms'), where('code', '==', code.toUpperCase()));
     const snapshot = await getDocs(q);
     if (!snapshot.empty) {
       const roomId = snapshot.docs[0].id;
-      await addDoc(collection(db, 'userRooms'), { userId: user.uid, roomId, roomCode: roomCode.toUpperCase() });
+      
+      // Check if user is already in this room
+      const existingRoom = query(
+        collection(db, 'userRooms'), 
+        where('userId', '==', user.uid),
+        where('roomId', '==', roomId)
+      );
+      const existingSnapshot = await getDocs(existingRoom);
+      
+      if (existingSnapshot.empty) {
+        await addDoc(collection(db, 'userRooms'), { userId: user.uid, roomId, roomCode: code.toUpperCase() });
+      }
+      
       navigate(`/bracket/${roomId}`);
+    } else {
+      alert('Room not found. Please check the code and try again.');
     }
   };
 

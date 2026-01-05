@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [username, setUsername] = useState(null);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
     if (!auth) {
@@ -48,16 +49,28 @@ export const AuthProvider = ({ children }) => {
       }
       
       setLoading(false);
+      setAuthReady(true);
     });
     return unsubscribe;
   }, []);
 
   const login = async (email, password) => {
     if (!auth) throw new Error('Firebase not configured');
-    setLoading(true);
+    setAuthReady(false);
     const result = await signInWithEmailAndPassword(auth, email, password);
     await result.user.reload();
     await result.user.getIdToken(true);
+    
+    // Wait for onAuthStateChanged to complete
+    await new Promise(resolve => {
+      const checkAuth = setInterval(() => {
+        if (authReady) {
+          clearInterval(checkAuth);
+          resolve();
+        }
+      }, 100);
+    });
+    
     return result;
   };
   
@@ -82,6 +95,7 @@ export const AuthProvider = ({ children }) => {
   
   const loginWithGoogle = async () => {
     if (!auth) throw new Error('Firebase not configured');
+    setAuthReady(false);
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
     
@@ -97,6 +111,16 @@ export const AuthProvider = ({ children }) => {
         hasSeenTutorial: false
       });
     }
+    
+    // Wait for onAuthStateChanged to complete
+    await new Promise(resolve => {
+      const checkAuth = setInterval(() => {
+        if (authReady) {
+          clearInterval(checkAuth);
+          resolve();
+        }
+      }, 100);
+    });
     
     return result;
   };
